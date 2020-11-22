@@ -20,7 +20,7 @@ class Message extends Model
 
     public function reactions()
     {
-        return $this->belongsToMany(Profile::class);
+        return $this->belongsToMany(Profile::class)->withPivot('type');
     }
 
     public function user()

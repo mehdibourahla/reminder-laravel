@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      class="btn btn-warning mr-3"
+      class="btn btn-warning mr-3 font-weight-bold"
       @click="FavouriteMessage"
       v-text="buttonText"
     ></button>
@@ -10,21 +10,22 @@
 
 <script>
 export default {
-  props: ["message-id", "favourites"],
+  props: ["message-id", "isFavourite"],
   mounted() {},
 
   data: function () {
+    let favouriteMsg = this.isFavourite;
     return {
-      status: this.favourites.includes(this.messageId),
+      status: favouriteMsg,
     };
   },
   methods: {
     FavouriteMessage() {
-      console.log(this.messageId);
       axios
         .post("/react/" + this.messageId + "/fav")
         .then((response) => {
           this.status = !this.status;
+          this.$emit("statusChanged", this.status);
         })
         .catch((errors) => {
           if (errors.response.status === 401) {
@@ -36,7 +37,7 @@ export default {
 
   computed: {
     buttonText() {
-      return this.status ? "Remove from Favourite" : "Add to Favourite";
+      return this.status ? "Remove from Favourite" : "Favourite";
     },
   },
 };

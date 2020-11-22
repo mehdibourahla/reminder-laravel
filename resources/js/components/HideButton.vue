@@ -10,21 +10,22 @@
 
 <script>
 export default {
-  props: ["message-id", "hides", "parentStatus"],
+  props: ["messageId", "isHidden"],
   mounted() {},
 
   data: function () {
+    let hiddenMsg = this.isHidden;
     return {
-      status: this.hides.includes(this.messageId),
+      status: hiddenMsg,
     };
   },
   methods: {
     hideMessage() {
-      this.$emit("statusChanged", this.status);
       axios
         .post("/react/" + this.messageId + "/hide")
         .then((response) => {
           this.status = !this.status;
+          this.$emit("statusChanged", this.status);
         })
         .catch((errors) => {
           if (errors.response.status === 401) {

@@ -13,7 +13,7 @@ class Profile extends Model
     }
 
     public function reacts(){
-        return $this->belongsToMany(Message::class);
+        return $this->belongsToMany(Message::class)->withPivot('type');;
     }
     
 

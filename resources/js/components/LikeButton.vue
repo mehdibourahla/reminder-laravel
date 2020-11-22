@@ -10,12 +10,13 @@
 
 <script>
 export default {
-  props: ["message-id", "likes"],
+  props: ["message-id", "isLiked"],
   mounted() {},
 
   data: function () {
+    let likedMsg = this.isLiked;
     return {
-      status: this.likes.includes(this.messageId),
+      status: likedMsg,
     };
   },
   methods: {
@@ -24,6 +25,7 @@ export default {
         .post("/react/" + this.messageId + "/like")
         .then((response) => {
           this.status = !this.status;
+          this.$emit("statusChanged", this.status);
         })
         .catch((errors) => {
           if (errors.response.status === 401) {

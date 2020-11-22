@@ -54,6 +54,12 @@ class ProfilePolicy
     {
         return $user->id == $profile->user_id;
     }
+    
+    public function getReactions(User $user, Profile $profile)
+    {
+        return $user->id == $profile->user_id;
+    }
+
 
     /**
      * Determine whether the user can delete the profile.

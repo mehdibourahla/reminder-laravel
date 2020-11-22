@@ -21,7 +21,7 @@ window.Vue = require("vue");
 
 Vue.component(
     "follow-button",
-    require("./components/FollowButton.vue").default
+    require("./components/ProfileComponents/FollowButton.vue").default
 );
 Vue.component("like-button", require("./components/LikeButton.vue").default);
 Vue.component(
@@ -32,6 +32,18 @@ Vue.component("hide-button", require("./components/HideButton.vue").default);
 Vue.component(
     "message-component",
     require("./components/MessageComponent.vue").default
+);
+Vue.component(
+    "category-buttons",
+    require("./components/ProfileComponents/CategoryButtons.vue").default
+);
+Vue.component(
+    "profile-messages",
+    require("./components/ProfileComponents/MessagesComponent.vue").default
+);
+Vue.component(
+    "explore-messages",
+    require("./components/ExploreComponents/MessagesComponent.vue").default
 );
 
 /**

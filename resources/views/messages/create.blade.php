@@ -29,7 +29,7 @@
 
                     <textarea id="description" name="description" rows="10" form="create_message"
                         class="form-control @error('description') is-invalid @enderror" description="description"
-                        value="{{ old('description') }}" autocomplete="description" autofocus></textarea>
+                        autocomplete="description" autofocus>{{ old('description') }}</textarea>
 
                     @error('description')
                     <span class="invalid-feedback" role="alert">

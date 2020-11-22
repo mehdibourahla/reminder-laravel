@@ -77,6 +77,7 @@
                                                      document.getElementById('logout-form').submit();">
                                     {{ __('Logout') }}
                                 </a>
+                                <a class="dropdown-item" href="/profile/{{Auth::user()->id}}">Go to profile </a>
                                 <a class="dropdown-item" href="/profile/{{Auth::user()->id}}/edit">Edit profile </a>
 
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST"
@@ -93,8 +94,10 @@
 
         <main class="py-4">
             @yield('content')
+
         </main>
     </div>
+    @stack('js')
 </body>
 
 </html>
