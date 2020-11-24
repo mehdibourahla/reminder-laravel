@@ -6,6 +6,7 @@
     <div class="row d-flex">
       <message-component
         v-for="message in messages"
+        v-on="$listeners"
         :key="message.id"
         :user="user"
         :query="query"
@@ -45,7 +46,6 @@ export default {
       this.getData();
     },
     async getData() {
-      console.log(this.query);
       let res = await fetch(this.query);
       if (!res.ok) {
         console.error("You shall not pass ! ");

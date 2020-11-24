@@ -3,14 +3,14 @@
     <button
       class="btn btn-danger mr-3"
       @click="likeMessage"
-      v-text="buttonText"
+      v-text="buttonText + ' (' + likesCount + ')'"
     ></button>
   </div>
 </template>
 
 <script>
 export default {
-  props: ["message-id", "isLiked"],
+  props: ["message-id", "isLiked", "likesCount"],
   mounted() {},
 
   data: function () {

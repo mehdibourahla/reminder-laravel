@@ -11,9 +11,7 @@
 <script>
 export default {
   props: ["userId"],
-  mounted() {
-    console.log("Component mounted.");
-  },
+  mounted() {},
 
   data: function () {
     fetch("/follow/" + this.userId).then((res) =>
@@ -44,6 +42,7 @@ export default {
             window.location = "/login";
           }
         });
+      this.$emit("pressed", "");
     },
   },
 

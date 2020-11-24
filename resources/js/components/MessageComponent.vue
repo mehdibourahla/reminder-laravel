@@ -33,13 +33,15 @@
       <div class="d-flex align-items-center">
         <like-button
           :message-id="msg.id"
+          :likesCount="likesCount"
           :is-liked="isLiked"
-          @statusChanged="isLiked = $event"
+          @statusChanged="like"
         ></like-button>
         <favourite-button
           :message-id="msg.id"
+          :favCount="favCount"
           :is-favourite="isFavourite"
-          @statusChanged="isFavourite = $event"
+          @statusChanged="fav"
         >
         </favourite-button>
         <hide-button
@@ -58,7 +60,10 @@ import axios from "axios";
 export default {
   props: ["message", "query", "user"],
 
-  mounted: function () {},
+  mounted: function () {
+    this.getLikeCount();
+    this.getFavCount();
+  },
 
   data: function () {
     return {
@@ -66,10 +71,36 @@ export default {
       isLiked: this.message.type.includes("like"),
       isFavourite: this.message.type.includes("fav"),
       isHidden: this.message.type.includes("hide"),
+      likesCount: 0,
+      favCount: 0,
     };
   },
 
   methods: {
+    like(value) {
+      this.isLiked = value;
+      this.getLikeCount();
+    },
+    fav(value) {
+      this.isFavourite = value;
+      this.getFavCount();
+    },
+    async getLikeCount() {
+      try {
+        const res = await axios.get("/m/" + this.msg.id + "/likes");
+        this.likesCount = res.data.length;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async getFavCount() {
+      try {
+        const res = await axios.get("/m/" + this.msg.id + "/fav");
+        this.favCount = res.data.length;
+      } catch (error) {
+        console.error(error);
+      }
+    },
     getImgUrl(msg) {
       return "/storage/" + msg.picture;
     },
@@ -79,13 +110,13 @@ export default {
         console.error(res);
       } else {
         this.isHidden = true;
+        this.$emit("deleted", true);
       }
     },
   },
 
   computed: {
     showButtons() {
-      console.log(this.user);
       return this.user ? JSON.parse(this.user).id == this.msg.user_id : false;
     },
     showMessage() {

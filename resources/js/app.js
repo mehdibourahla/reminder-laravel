@@ -39,11 +39,19 @@ Vue.component(
 );
 Vue.component(
     "profile-messages",
-    require("./components/ProfileComponents/MessagesComponent.vue").default
+    require("./components/ProfileComponents/ProfileMessages.vue").default
 );
 Vue.component(
     "explore-messages",
-    require("./components/ExploreComponents/MessagesComponent.vue").default
+    require("./components/ExploreComponents/ExploreMessages.vue").default
+);
+Vue.component(
+    "profile-details",
+    require("./components/ProfileComponents/ProfileDetails.vue").default
+);
+Vue.component(
+    "profile-container",
+    require("./components/ProfileComponents/ProfileContainer.vue").default
 );
 
 /**

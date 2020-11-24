@@ -3,14 +3,14 @@
     <button
       class="btn btn-warning mr-3 font-weight-bold"
       @click="FavouriteMessage"
-      v-text="buttonText"
+      v-text="buttonText + ' (' + favCount + ')'"
     ></button>
   </div>
 </template>
 
 <script>
 export default {
-  props: ["message-id", "isFavourite"],
+  props: ["message-id", "isFavourite", "favCount"],
   mounted() {},
 
   data: function () {

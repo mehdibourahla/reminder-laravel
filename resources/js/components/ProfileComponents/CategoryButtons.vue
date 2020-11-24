@@ -1,17 +1,13 @@
 <template>
-  <div class="row py-3">
-    <div class="col-lg-12 col-md-8 col-sm-4">
-      <button @click="showOwn" class="m-2 btn btn-primary">My Messages</button>
-      <button @click="showLiked" class="m-2 btn btn-danger">
-        Liked Messages
-      </button>
-      <button @click="showFavourite" class="m-2 btn btn-warning">
-        Favourite Messages
-      </button>
-      <button @click="showHiden" class="m-2 btn btn-secondary">
-        Hiden Messages
-      </button>
-    </div>
+  <div class="d-flex justify-content-around" style="margin: 10px 100px">
+    <button @click="showOwn" class="btn btn-primary mx-2">My Messages</button>
+    <button @click="showLiked" class="btn btn-danger mx-2">
+      Liked Messages
+    </button>
+    <button @click="showFavourite" class="btn btn-warning mx-2">
+      Favourite Messages
+    </button>
+    <button @click="showHiden" class="btn btn-secondary">Hiden Messages</button>
   </div>
 </template>
 
