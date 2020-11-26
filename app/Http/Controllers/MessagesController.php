@@ -4,12 +4,28 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Message;
-use App\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class MessagesController extends Controller
 {
+
+    public function postReaction(Message $message)
+    {
+        $profile = auth()->user()->profile->id;
+        $type = request()->reaction;
+
+        if ($message->checkReaction($profile, $type) > 0) {
+            return $message->reactions()->wherePivot('type', '=', $type)->detach(
+                $profile
+            );
+        } else {
+            return $message->reactions()->attach(
+                $profile,
+                ['type' => $type]
+            );
+        }
+    }
 
     public function getLikes(Message $message)
     {

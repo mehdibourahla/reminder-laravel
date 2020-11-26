@@ -12,10 +12,11 @@ class Profile extends Model
         return $this->picture ? '/storage/' . $this->picture : '/svg/user.svg';
     }
 
-    public function reacts(){
-        return $this->belongsToMany(Message::class)->withPivot('type');;
+    public function reacts()
+    {
+        return $this->belongsToMany(Message::class)->withPivot('type');
     }
-    
+
 
     public function followers()
     {

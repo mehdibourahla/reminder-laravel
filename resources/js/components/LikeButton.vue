@@ -10,21 +10,33 @@
 
 <script>
 export default {
-  props: ["message-id", "isLiked", "likesCount"],
-  mounted() {},
+  props: ["messageId", "isLiked"],
+  mounted() {
+    this.getLikeCount();
+  },
 
   data: function () {
     let likedMsg = this.isLiked;
     return {
       status: likedMsg,
+      likesCount: 0,
     };
   },
   methods: {
+    async getLikeCount() {
+      try {
+        const res = await axios.get("/api/m/" + this.messageId + "/likes");
+        this.likesCount = res.data.length;
+      } catch (error) {
+        console.error(error);
+      }
+    },
     likeMessage() {
       axios
-        .post("/react/" + this.messageId + "/like")
+        .post("/api/m/" + this.messageId + "/like")
         .then((response) => {
           this.status = !this.status;
+          this.getLikeCount();
           this.$emit("statusChanged", this.status);
         })
         .catch((errors) => {

@@ -22,7 +22,7 @@ export default {
   methods: {
     hideMessage() {
       axios
-        .post("/react/" + this.messageId + "/hide")
+        .post("/api/m/" + this.messageId + "/hide")
         .then((response) => {
           this.status = !this.status;
           this.$emit("statusChanged", this.status);

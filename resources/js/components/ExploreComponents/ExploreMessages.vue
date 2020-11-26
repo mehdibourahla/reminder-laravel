@@ -22,7 +22,7 @@ export default {
   data: function () {
     return {
       messages: null,
-      query: "/m/followedMsgs",
+      query: "/api/m/followedMsgs",
     };
   },
   methods: {

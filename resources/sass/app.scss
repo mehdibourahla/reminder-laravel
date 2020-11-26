@@ -6,3 +6,14 @@
 
 // Bootstrap
 @import "~bootstrap/scss/bootstrap";
+.active {
+    height: 200px;
+    width: 200px;
+    background-size: contain;
+    background-color: gray;
+}
+.active-thumbnail {
+    width: 30px;
+    height: 30px;
+    background: gray;
+}

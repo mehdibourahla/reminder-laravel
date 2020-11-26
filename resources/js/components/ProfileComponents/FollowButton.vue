@@ -1,39 +1,44 @@
 <template>
   <div>
-    <button
-      class="btn btn-primary"
-      @click="followUser"
-      v-text="buttonText"
-    ></button>
+    <div>
+      <a class="btn btn-primary" @click="followUser" v-text="buttonText"> </a>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   props: ["userId"],
-  mounted() {},
+  mounted() {
+    this.isFollowed();
+    this.$root.$on("remove", () => {
+      this.isFollowed();
+    });
+  },
 
   data: function () {
-    fetch("/follow/" + this.userId).then((res) =>
-      res
-        .json()
-        .then((data) => {
-          this.status = data;
-        })
-        .catch((errors) => {
-          if (errors.response.status === 401) {
-            window.location = "/login";
-          }
-        })
-    );
     return {
       status: null,
     };
   },
   methods: {
+    isFollowed() {
+      fetch("/api/profile/" + this.userId + "/follow").then((res) =>
+        res
+          .json()
+          .then((data) => {
+            this.status = data;
+          })
+          .catch((errors) => {
+            if (errors.response.status === 401) {
+              window.location = "/login";
+            }
+          })
+      );
+    },
     followUser() {
       axios
-        .post("/follow/" + this.userId)
+        .post("/api/profile/" + this.userId + "/follow")
         .then((response) => {
           this.status = !this.status;
         })
@@ -42,17 +47,16 @@ export default {
             window.location = "/login";
           }
         });
-      this.$emit("pressed", "");
+      this.$emit("pressed");
     },
   },
 
   computed: {
     buttonText() {
-      if (this.status === null) {
-        return "WAIT";
-      } else {
-        return this.status ? "Unfollow" : "Follow";
-      }
+      return this.status ? "Unfollow" : "Follow";
+    },
+    show() {
+      return this.status === null;
     },
   },
 };

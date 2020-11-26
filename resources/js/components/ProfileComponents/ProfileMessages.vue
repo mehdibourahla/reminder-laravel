@@ -26,7 +26,7 @@ export default {
   data: function () {
     return {
       messages: null,
-      query: "/profile/" + this.profileId + "/" + "m",
+      query: "/api/profile/" + this.profileId + "/" + "m",
     };
   },
   methods: {
@@ -41,7 +41,7 @@ export default {
     },
     filter(value) {
       this.messages = null;
-      this.query = "/profile/" + this.profileId + "/" + value;
+      this.query = "/api/profile/" + this.profileId + "/" + value;
 
       this.getData();
     },

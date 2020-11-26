@@ -10,21 +10,33 @@
 
 <script>
 export default {
-  props: ["message-id", "isFavourite", "favCount"],
-  mounted() {},
+  props: ["message-id", "isFavourite"],
+  mounted() {
+    this.getFavCount();
+  },
 
   data: function () {
     let favouriteMsg = this.isFavourite;
     return {
       status: favouriteMsg,
+      favCount: 0,
     };
   },
   methods: {
+    async getFavCount() {
+      try {
+        const res = await axios.get("/api/m/" + this.messageId + "/fav");
+        this.favCount = res.data.length;
+      } catch (error) {
+        console.error(error);
+      }
+    },
     FavouriteMessage() {
       axios
-        .post("/react/" + this.messageId + "/fav")
+        .post("/api/m/" + this.messageId + "/fav")
         .then((response) => {
           this.status = !this.status;
+          this.getFavCount();
           this.$emit("statusChanged", this.status);
         })
         .catch((errors) => {

@@ -2,14 +2,25 @@
   <div v-if="showMessage" class="card my-3 w-100">
     <div class="card-body">
       <div class="d-flex align-items-center justify-content-between">
-        <div class="">
-          <a :href="'/profile/' + msg.user_id">
+        <div>
+          <a
+            :href="'/profile/' + msg.user_id"
+            class="d-flex align-items-center"
+          >
+            <loading-spinner
+              v-show="show"
+              v-bind:style="{ width: '50px' }"
+            ></loading-spinner>
+
             <img
-              :src="getImgUrl(msg)"
+              :src="getImg()"
+              v-show="!show"
+              @load="loaded"
               alt="profile-pic"
               class="img-thumbnail rounded-circle"
               style="width: 50px"
             />
+
             <span class="text-dark font-weight-bold">{{ msg.username }}</span>
           </a>
         </div>
@@ -33,13 +44,11 @@
       <div class="d-flex align-items-center">
         <like-button
           :message-id="msg.id"
-          :likesCount="likesCount"
           :is-liked="isLiked"
           @statusChanged="like"
         ></like-button>
         <favourite-button
           :message-id="msg.id"
-          :favCount="favCount"
           :is-favourite="isFavourite"
           @statusChanged="fav"
         >
@@ -60,10 +69,7 @@ import axios from "axios";
 export default {
   props: ["message", "query", "user"],
 
-  mounted: function () {
-    this.getLikeCount();
-    this.getFavCount();
-  },
+  mounted: function () {},
 
   data: function () {
     return {
@@ -71,47 +77,37 @@ export default {
       isLiked: this.message.type.includes("like"),
       isFavourite: this.message.type.includes("fav"),
       isHidden: this.message.type.includes("hide"),
-      likesCount: 0,
-      favCount: 0,
+      loading: true,
     };
   },
 
   methods: {
     like(value) {
       this.isLiked = value;
-      this.getLikeCount();
     },
     fav(value) {
       this.isFavourite = value;
-      this.getFavCount();
     },
-    async getLikeCount() {
-      try {
-        const res = await axios.get("/m/" + this.msg.id + "/likes");
-        this.likesCount = res.data.length;
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    async getFavCount() {
-      try {
-        const res = await axios.get("/m/" + this.msg.id + "/fav");
-        this.favCount = res.data.length;
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    getImgUrl(msg) {
-      return "/storage/" + msg.picture;
-    },
+
     async deleteMessage(msg) {
-      let res = await axios.delete("/m/" + msg.id);
+      let res = await axios.delete("/api/m/" + msg.id);
       if (res.status !== 200) {
         console.error(res);
       } else {
         this.isHidden = true;
         this.$emit("deleted", true);
       }
+    },
+    getImg() {
+      const res = this.msg.picture
+        ? "/storage/" + this.msg.picture
+        : "/svg/user.svg";
+      return res;
+    },
+    loaded() {
+      setTimeout(() => {
+        this.loading = false;
+      }, 100);
     },
   },
 
@@ -133,6 +129,9 @@ export default {
           }
         }
       }
+    },
+    show() {
+      return this.loading;
     },
   },
 };

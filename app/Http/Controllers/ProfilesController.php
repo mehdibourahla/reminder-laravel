@@ -20,10 +20,58 @@ class ProfilesController extends Controller
         $this->currentProfile = Profile::findOrFail($request->route('user'));
     }
 
+
+    public function show(User $user)
+    {
+        $isAuthenticated = auth()->user() ? auth()->user() : false;
+
+        return view('profiles.show', compact('user', 'isAuthenticated'));
+    }
+
+    public function edit(User $user)
+    {
+        $this->authorize('update', $user->profile);
+        return view('profiles.edit', compact('user'));
+    }
+
+    public function update(User $user)
+    {
+        $dataUser = request()->validate([
+            'username' => 'required',
+        ]);
+        $dataProfile = request()->validate([
+            'bio' => '',
+            'url' => 'nullable|url',
+            'picture' => 'image',
+        ]);
+
+        if (request('picture')) {
+            $imagePath = request('picture')->store('profile', 'public');
+
+            $image = Image::make(public_path("storage/{$imagePath}"))->fit(1000, 1000);
+            $image->save();
+            $imgArray = ['picture' => $imagePath];
+        }
+
+        auth()->user()->update($dataUser);
+        auth()->user()->profile->update(array_merge(
+            $dataProfile,
+            $imgArray ?? []
+        ));
+
+        return redirect("/profile/{$user->id}");
+    }
+
+    // API 
     public function isFollowed(User $user)
     {
         $response = (auth()->user()) ? auth()->user()->following->contains($user->id) : false;
         return json_encode($response);
+    }
+
+    public function follow(User $user)
+    {
+        return auth()->user()->following()->toggle($user->profile);
     }
 
     public function getProfileMessages()
@@ -91,12 +139,14 @@ class ProfilesController extends Controller
 
         return response()->json($messagesCount);
     }
+
     public function getFollowersCount(User $user)
     {
         $followersCount =  $user->profile->followers()->count();
 
         return response()->json($followersCount);
     }
+
     public function getFollowingCount(User $user)
     {
         $followingCount =  $user->following()->count();
@@ -114,44 +164,22 @@ class ProfilesController extends Controller
         return response()->json($profileDetails);
     }
 
-    public function index(User $user)
+    public function getFollowers(User $user)
     {
-        $isAuthenticated = auth()->user() ? auth()->user() : false;
+        $followers = $user->profile->followers()
+            ->join('profiles', 'profiles.user_id', 'profile_user.user_id')
+            ->select('users.username', 'users.name', 'profiles.picture')
+            ->get();
 
-        return view('profiles.index', compact('user', 'isAuthenticated'));
+        return response()->json($followers);
     }
-
-    public function edit(User $user)
+    public function getFollowing(User $user)
     {
-        $this->authorize('update', $user->profile);
-        return view('profiles.edit', compact('user'));
-    }
+        $following = $user->following()
+            ->join('users', 'users.id', 'profile_user.user_id')
+            ->select('users.username', 'users.name', 'profiles.picture')
+            ->get();
 
-    public function update(User $user)
-    {
-        $dataUser = request()->validate([
-            'username' => 'required',
-        ]);
-        $dataProfile = request()->validate([
-            'bio' => '',
-            'url' => 'nullable|url',
-            'picture' => 'image',
-        ]);
-
-        if (request('picture')) {
-            $imagePath = request('picture')->store('profile', 'public');
-
-            $image = Image::make(public_path("storage/{$imagePath}"))->fit(1000, 1000);
-            $image->save();
-            $imgArray = ['picture' => $imagePath];
-        }
-
-        auth()->user()->update($dataUser);
-        auth()->user()->profile->update(array_merge(
-            $dataProfile,
-            $imgArray ?? []
-        ));
-
-        return redirect("/profile/{$user->id}");
+        return response()->json($following);
     }
 }

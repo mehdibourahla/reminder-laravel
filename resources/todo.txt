@@ -1,6 +1,0 @@
-* Rename components. DONE
-* Refactor the queries.
-* Put the number of reactions on each message.
-* See followers and following profiles.
-* Create a new migration for tags.
-* Handle the notifications.

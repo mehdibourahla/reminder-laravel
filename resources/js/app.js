@@ -7,6 +7,7 @@
 require("./bootstrap");
 
 window.Vue = require("vue");
+import VueElementLoading from "vue-element-loading";
 
 /**
  * The following block of code may be used to automatically register your
@@ -53,6 +54,17 @@ Vue.component(
     "profile-container",
     require("./components/ProfileComponents/ProfileContainer.vue").default
 );
+Vue.component(
+    "follows-modal",
+    require("./components/ProfileComponents/FollowsModal.vue").default
+);
+Vue.component(
+    "profile-preview",
+    require("./components/ProfileComponents/ProfilePreview.vue").default
+);
+Vue.component("loading-spinner", require("./components/Loading.vue").default);
+
+Vue.component("VueElementLoading", VueElementLoading);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
