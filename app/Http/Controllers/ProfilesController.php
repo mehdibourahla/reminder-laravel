@@ -74,6 +74,11 @@ class ProfilesController extends Controller
         return auth()->user()->following()->toggle($user->profile);
     }
 
+    public function removeFollower(User $user)
+    {
+        return $user->following()->detach(auth()->user());
+    }
+
     public function getProfileMessages()
     {
 
@@ -168,7 +173,7 @@ class ProfilesController extends Controller
     {
         $followers = $user->profile->followers()
             ->join('profiles', 'profiles.user_id', 'profile_user.user_id')
-            ->select('users.username', 'users.name', 'profiles.picture')
+            ->select('users.username', 'users.name', 'profiles.picture', 'profiles.id')
             ->get();
 
         return response()->json($followers);
@@ -177,7 +182,7 @@ class ProfilesController extends Controller
     {
         $following = $user->following()
             ->join('users', 'users.id', 'profile_user.user_id')
-            ->select('users.username', 'users.name', 'profiles.picture')
+            ->select('users.username', 'users.name', 'profiles.picture', 'profiles.id')
             ->get();
 
         return response()->json($following);

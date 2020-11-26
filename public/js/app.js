@@ -2407,7 +2407,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a["delete"]("/api/m/" + msg.id);
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a["delete"]("/m/" + msg.id);
 
               case 2:
                 res = _context.sent;
@@ -2537,7 +2537,7 @@ __webpack_require__.r(__webpack_exports__);
     var _this = this;
 
     this.isFollowed();
-    this.$root.$on("remove", function () {
+    this.$root.$on("updateFollows", function () {
       _this.isFollowed();
     });
   },
@@ -2565,12 +2565,13 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.post("/api/profile/" + this.userId + "/follow").then(function (response) {
         _this3.status = !_this3.status;
+
+        _this3.$root.$emit("updateFollows");
       })["catch"](function (errors) {
         if (errors.response.status === 401) {
           window.location = "/login";
         }
       });
-      this.$emit("pressed");
     }
   },
   computed: {
@@ -2596,7 +2597,6 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _ProfilePreview_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ProfilePreview.vue */ "./resources/js/components/ProfileComponents/ProfilePreview.vue");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -2648,11 +2648,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  components: {
-    ProfilePreview: _ProfilePreview_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
-  },
   model: {
     event: "show-modal"
   },
@@ -2843,7 +2844,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   mounted: function mounted() {
     var _this = this;
 
-    this.$root.$on("remove", function () {
+    this.$root.$on("updateFollows", function () {
       _this.getFollowersCount();
 
       _this.getFollowingCount();
@@ -3192,8 +3193,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["profile"],
+  props: ["profile", "query", "profileId"],
   mounted: function mounted() {},
   data: function data() {
     return {
@@ -3202,7 +3207,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   },
   methods: {
     getImgUrl: function getImgUrl(profile) {
-      return "/storage/" + profile.picture;
+      return profile.picture ? "/storage/" + profile.picture : "/svg/user.svg";
     },
     removeFollower: function removeFollower() {
       var _this = this;
@@ -3215,34 +3220,38 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 0:
                 _context.prev = 0;
                 _context.next = 3;
-                return axios.post("/api/profile/" + _this.profile.id + "/follow");
+                return axios.get("/api/profile/" + _this.profile.id + "/removeFollower");
 
               case 3:
                 res = _context.sent;
+                console.log(_this.profile.id);
                 _this.status = !_this.status;
 
-                _this.$root.$emit("remove");
+                _this.$root.$emit("updateFollows");
 
-                _context.next = 11;
+                _context.next = 12;
                 break;
 
-              case 8:
-                _context.prev = 8;
+              case 9:
+                _context.prev = 9;
                 _context.t0 = _context["catch"](0);
                 console.error(_context.t0);
 
-              case 11:
+              case 12:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[0, 8]]);
+        }, _callee, null, [[0, 9]]);
       }))();
     }
   },
   computed: {
     show: function show() {
       return this.status;
+    },
+    showButton: function showButton() {
+      return this.$userId === this.profileId && this.query == "followers";
     }
   }
 });
@@ -40058,7 +40067,19 @@ var render = function() {
               ]
             ),
             _vm._v(" "),
-            _vm._m(0)
+            _c(
+              "button",
+              {
+                staticClass: "close",
+                attrs: {
+                  type: "button",
+                  "data-dismiss": "modal",
+                  "aria-label": "Close"
+                },
+                on: { click: _vm.empty }
+              },
+              [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+            )
           ]),
           _vm._v(" "),
           _c(
@@ -40069,7 +40090,13 @@ var render = function() {
                 "div",
                 { key: profile.id },
                 [
-                  _c("profile-preview", { attrs: { profile: profile } }),
+                  _c("profile-preview", {
+                    attrs: {
+                      "profile-id": _vm.profileId,
+                      query: _vm.query,
+                      profile: profile
+                    }
+                  }),
                   _vm._v(" "),
                   _c("hr", {
                     directives: [
@@ -40104,25 +40131,7 @@ var render = function() {
     ]
   )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "button",
-      {
-        staticClass: "close",
-        attrs: {
-          type: "button",
-          "data-dismiss": "modal",
-          "aria-label": "Close"
-        }
-      },
-      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
-    )
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -40153,7 +40162,9 @@ var render = function() {
         on: { deleted: _vm.deleteMsg, go: _vm.loaded }
       }),
       _vm._v(" "),
-      _c("follows-modal", { attrs: { "profile-id": _vm.profileId } }),
+      _c("follows-modal", {
+        attrs: { "profile-id": _vm.profileId, user: _vm.user }
+      }),
       _vm._v(" "),
       _c("profile-messages", {
         directives: [
@@ -40238,10 +40249,7 @@ var render = function() {
                   _vm._v(_vm._s(_vm.profileDetails.username))
                 ]),
                 _vm._v(" "),
-                _c("follow-button", {
-                  attrs: { "user-id": _vm.profileId },
-                  on: { pressed: _vm.reload }
-                })
+                _c("follow-button", { attrs: { "user-id": _vm.profileId } })
               ],
               1
             ),
@@ -40401,15 +40409,18 @@ var render = function() {
             ]
           ),
           _vm._v(" "),
-          _c(
-            "button",
-            {
-              staticClass: "btn btn-secondary",
-              on: { click: _vm.removeFollower }
-            },
-            [_vm._v("Remove")]
-          )
-        ]
+          _vm.showButton
+            ? _c(
+                "button",
+                {
+                  staticClass: "btn btn-secondary",
+                  on: { click: _vm.removeFollower }
+                },
+                [_vm._v("\n    Remove\n  ")]
+              )
+            : _c("follow-button", { attrs: { "user-id": _vm.profile.id } })
+        ],
+        1
       )
     : _vm._e()
 }
@@ -52602,6 +52613,10 @@ __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
 
+
+if (document.querySelector("meta[name='user-id']")) {
+  Vue.prototype.$userId = document.querySelector("meta[name='user-id']").getAttribute("content");
+}
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -52611,6 +52626,7 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
  */
 // const files = require.context('./', true, /\.vue$/i);
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
+
 
 Vue.component("follow-button", __webpack_require__(/*! ./components/ProfileComponents/FollowButton.vue */ "./resources/js/components/ProfileComponents/FollowButton.vue")["default"]);
 Vue.component("like-button", __webpack_require__(/*! ./components/LikeButton.vue */ "./resources/js/components/LikeButton.vue")["default"]);

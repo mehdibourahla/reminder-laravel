@@ -17,6 +17,7 @@
             type="button"
             class="close"
             data-dismiss="modal"
+            @click="empty"
             aria-label="Close"
           >
             <span aria-hidden="true">&times;</span>
@@ -24,7 +25,11 @@
         </div>
         <div class="modal-body">
           <div v-for="(profile, index) in follows" :key="profile.id">
-            <profile-preview :profile="profile"></profile-preview>
+            <profile-preview
+              :profile-id="profileId"
+              :query="query"
+              :profile="profile"
+            ></profile-preview>
             <hr v-show="index !== follows.length - 1" />
           </div>
         </div>
@@ -44,9 +49,7 @@
 </template>
 
 <script>
-import ProfilePreview from "./ProfilePreview.vue";
 export default {
-  components: { ProfilePreview },
   model: {
     event: "show-modal",
   },

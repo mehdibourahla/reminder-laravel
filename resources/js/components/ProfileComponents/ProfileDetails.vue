@@ -15,7 +15,7 @@
       <div class="col-6">
         <div class="d-flex align-items-center">
           <div class="h4 mr-4">{{ profileDetails.username }}</div>
-          <follow-button @pressed="reload" :user-id="profileId"></follow-button>
+          <follow-button :user-id="profileId"></follow-button>
         </div>
         <div class="d-flex pt-3">
           <div class="pr-5">
@@ -50,7 +50,7 @@ export default {
     this.getDetails();
   },
   mounted() {
-    this.$root.$on("remove", () => {
+    this.$root.$on("updateFollows", () => {
       this.getFollowersCount();
       this.getFollowingCount();
     });

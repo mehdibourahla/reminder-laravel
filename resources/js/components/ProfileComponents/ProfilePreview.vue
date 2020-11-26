@@ -16,13 +16,18 @@
         </div>
       </div>
     </a>
-    <button @click="removeFollower" class="btn btn-secondary">Remove</button>
+
+    <button v-if="showButton" @click="removeFollower" class="btn btn-secondary">
+      Remove
+    </button>
+    <follow-button v-else :user-id="profile.id"></follow-button>
   </div>
 </template>
 
 <script>
 export default {
-  props: ["profile"],
+  props: ["profile", "query", "profileId"],
+
   mounted() {},
 
   data: function () {
@@ -32,15 +37,16 @@ export default {
   },
   methods: {
     getImgUrl(profile) {
-      return "/storage/" + profile.picture;
+      return profile.picture ? "/storage/" + profile.picture : "/svg/user.svg";
     },
     async removeFollower() {
       try {
-        const res = await axios.post(
-          "/api/profile/" + this.profile.id + "/follow"
+        const res = await axios.get(
+          "/api/profile/" + this.profile.id + "/removeFollower"
         );
+        console.log(this.profile.id);
         this.status = !this.status;
-        this.$root.$emit("remove");
+        this.$root.$emit("updateFollows");
       } catch (errors) {
         console.error(errors);
       }
@@ -50,6 +56,9 @@ export default {
   computed: {
     show() {
       return this.status;
+    },
+    showButton() {
+      return this.$userId === this.profileId && this.query == "followers";
     },
   },
 };

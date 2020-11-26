@@ -9,6 +9,11 @@ require("./bootstrap");
 window.Vue = require("vue");
 import VueElementLoading from "vue-element-loading";
 
+if (document.querySelector("meta[name='user-id']")) {
+    Vue.prototype.$userId = document
+        .querySelector("meta[name='user-id']")
+        .getAttribute("content");
+}
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue

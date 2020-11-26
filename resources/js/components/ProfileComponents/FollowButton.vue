@@ -11,7 +11,7 @@ export default {
   props: ["userId"],
   mounted() {
     this.isFollowed();
-    this.$root.$on("remove", () => {
+    this.$root.$on("updateFollows", () => {
       this.isFollowed();
     });
   },
@@ -41,13 +41,13 @@ export default {
         .post("/api/profile/" + this.userId + "/follow")
         .then((response) => {
           this.status = !this.status;
+          this.$root.$emit("updateFollows");
         })
         .catch((errors) => {
           if (errors.response.status === 401) {
             window.location = "/login";
           }
         });
-      this.$emit("pressed");
     },
   },
 

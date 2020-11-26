@@ -90,7 +90,7 @@ export default {
     },
 
     async deleteMessage(msg) {
-      let res = await axios.delete("/api/m/" + msg.id);
+      let res = await axios.delete("/m/" + msg.id);
       if (res.status !== 200) {
         console.error(res);
       } else {

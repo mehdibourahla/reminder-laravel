@@ -7,7 +7,7 @@
       @go="loaded"
     >
     </profile-details>
-    <follows-modal :profile-id="profileId"></follows-modal>
+    <follows-modal :profile-id="profileId" :user="user"></follows-modal>
     <profile-messages
       v-show="show"
       :user="user"
