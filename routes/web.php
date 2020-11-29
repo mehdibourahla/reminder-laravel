@@ -49,5 +49,6 @@ Route::get('/m/{message}/edit', 'MessagesController@edit')->name('message.edit')
 // API | Message
 Route::get('/api/m/{message}/fav', 'MessagesController@getFav');
 Route::get('/api/m/{message}/likes', 'MessagesController@getLikes');
+Route::get('/api/m/{message}/tags', 'MessagesController@getMessageTags')->name('message.tags');
 Route::get('/api/m/followedMsgs', 'MessagesController@getFollowedMessages')->middleware('auth');
 Route::post('/api/m/{message}/{reaction}', 'MessagesController@postReaction')->middleware('auth');

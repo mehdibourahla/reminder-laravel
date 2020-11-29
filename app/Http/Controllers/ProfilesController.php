@@ -7,9 +7,8 @@ use Intervention\Image\Facades\Image;
 use App\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use App\Message;
 use App\Profile;
-use Illuminate\Support\Facades\Cache;
+
 
 class ProfilesController extends Controller
 {
@@ -34,6 +33,7 @@ class ProfilesController extends Controller
         return view('profiles.edit', compact('user'));
     }
 
+    // TO UPDATED
     public function update(User $user)
     {
         $dataUser = request()->validate([
@@ -81,7 +81,6 @@ class ProfilesController extends Controller
 
     public function getProfileMessages()
     {
-
         $messages = DB::table('users')
             ->join('messages', 'users.id', 'messages.user_id')
             ->join('profiles', 'users.id', 'profiles.user_id')
@@ -141,31 +140,25 @@ class ProfilesController extends Controller
     public function getMessageCount(User $user)
     {
         $messagesCount =  $user->messages->count();
-
         return response()->json($messagesCount);
     }
 
     public function getFollowersCount(User $user)
     {
         $followersCount =  $user->profile->followers()->count();
-
         return response()->json($followersCount);
     }
 
     public function getFollowingCount(User $user)
     {
         $followingCount =  $user->following()->count();
-
         return response()->json($followingCount);
     }
 
     public function getDetails(User $user)
     {
-        $profileDetails = DB::table('users')
-            ->join('profiles', 'users.id', 'profiles.user_id')
-            ->where('users.id', '=', $user->id)
-            ->select('users.username', 'users.name', 'profiles.*')
-            ->first();
+        $profileDetails = $user->profile()->join('users', 'users.id', 'profiles.user_id')
+            ->first(['users.username', 'users.name', 'profiles.*']);
         return response()->json($profileDetails);
     }
 
@@ -175,7 +168,6 @@ class ProfilesController extends Controller
             ->join('profiles', 'profiles.user_id', 'profile_user.user_id')
             ->select('users.username', 'users.name', 'profiles.picture', 'profiles.id')
             ->get();
-
         return response()->json($followers);
     }
     public function getFollowing(User $user)

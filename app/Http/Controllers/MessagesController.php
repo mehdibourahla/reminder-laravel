@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Message;
+use App\Tag;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -78,6 +79,11 @@ class MessagesController extends Controller
         return json_encode($messages);
     }
 
+    public function getMessageTags(Message $message)
+    {
+        return $message->tags()->get(['tags.id', 'label']);
+    }
+
     public function index()
     {
         $user = auth()->user() ? auth()->user() : false;
@@ -101,7 +107,13 @@ class MessagesController extends Controller
             'description' => 'required'
         ]);
 
-        auth()->user()->messages()->create($data);
+        $created_message = auth()->user()->messages()->create($data);
+
+        $tags = json_decode(request()->tags);
+        foreach ($tags as $tag) {
+            $created_tag = Tag::create(['label' => $tag]);
+            $created_message->tags()->attach($created_tag);
+        }
 
         return redirect('/profile/' . auth()->user()->id);
     }
@@ -109,7 +121,9 @@ class MessagesController extends Controller
     public function edit(Message $message)
     {
         $this->authorize('update', $message);
-        return view('messages.edit', compact('message'));
+        $tags = array_column($message->tags()->get(['label'])->toArray(), 'label');
+        $tags = implode(",", $tags);
+        return view('messages.edit', compact('message', 'tags'));
     }
 
     public function update(Message $message)
@@ -122,6 +136,12 @@ class MessagesController extends Controller
             ]);
 
             $message->update($data);
+            DB::table('message_tag')->where('message_id', $message->id)->delete();
+            $tags = json_decode(request()->tags);
+            foreach ($tags as $tag) {
+                $created_tag = Tag::create(['label' => $tag]);
+                $message->tags()->attach($created_tag);
+            }
         }
         return redirect('/profile/' . auth()->user()->id);
     }
@@ -131,6 +151,8 @@ class MessagesController extends Controller
         $user = auth()->user();
         try {
             if ($user->can('delete', $message)) {
+                DB::table('message_tag')->where('message_id', $message->id)->delete();
+                DB::table('message_profile')->where('message_id', $message->id)->delete();
                 Message::destroy($message->id);
                 return response()->json('Message deleted');
             } else {

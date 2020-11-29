@@ -60,6 +60,16 @@
         >
         </hide-button>
       </div>
+      <div class="mt-2">
+        <button
+          v-for="tag in tags"
+          :key="tag.id"
+          class="btn btn-outline-info btn-sm"
+          style="margin: 2px 3px"
+        >
+          {{ tag.label }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -69,7 +79,9 @@ import axios from "axios";
 export default {
   props: ["message", "query", "user"],
 
-  mounted: function () {},
+  mounted: function () {
+    this.getTags();
+  },
 
   data: function () {
     return {
@@ -77,6 +89,7 @@ export default {
       isLiked: this.message.type.includes("like"),
       isFavourite: this.message.type.includes("fav"),
       isHidden: this.message.type.includes("hide"),
+      tags: null,
       loading: true,
     };
   },
@@ -87,6 +100,15 @@ export default {
     },
     fav(value) {
       this.isFavourite = value;
+    },
+
+    async getTags() {
+      try {
+        let res = await axios.get("/api/m/" + this.msg.id + "/tags");
+        this.tags = res.data;
+      } catch (error) {
+        console.error(error);
+      }
     },
 
     async deleteMessage(msg) {
@@ -105,9 +127,7 @@ export default {
       return res;
     },
     loaded() {
-      setTimeout(() => {
-        this.loading = false;
-      }, 100);
+      this.loading = false;
     },
   },
 

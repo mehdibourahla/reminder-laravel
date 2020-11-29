@@ -77,9 +77,7 @@ export default {
   },
   methods: {
     loaded() {
-      setTimeout(() => {
-        this.loading = false;
-      }, 100);
+      this.loading = false;
     },
     reload() {
       this.getFollowersCount();

@@ -2377,16 +2377,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["message", "query", "user"],
-  mounted: function mounted() {},
+  mounted: function mounted() {
+    this.getTags();
+  },
   data: function data() {
     return {
       msg: this.message,
       isLiked: this.message.type.includes("like"),
       isFavourite: this.message.type.includes("fav"),
       isHidden: this.message.type.includes("hide"),
+      tags: null,
       loading: true
     };
   },
@@ -2397,7 +2410,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     fav: function fav(value) {
       this.isFavourite = value;
     },
-    deleteMessage: function deleteMessage(msg) {
+    getTags: function getTags() {
       var _this = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
@@ -2406,26 +2419,58 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a["delete"]("/m/" + msg.id);
+                _context.prev = 0;
+                _context.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/m/" + _this.msg.id + "/tags");
 
-              case 2:
+              case 3:
                 res = _context.sent;
+                _this.tags = res.data;
+                _context.next = 10;
+                break;
 
-                if (res.status !== 200) {
-                  console.error(res);
-                } else {
-                  _this.isHidden = true;
+              case 7:
+                _context.prev = 7;
+                _context.t0 = _context["catch"](0);
+                console.error(_context.t0);
 
-                  _this.$emit("deleted", true);
-                }
-
-              case 4:
+              case 10:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee);
+        }, _callee, null, [[0, 7]]);
+      }))();
+    },
+    deleteMessage: function deleteMessage(msg) {
+      var _this2 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
+        var res;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a["delete"]("/m/" + msg.id);
+
+              case 2:
+                res = _context2.sent;
+
+                if (res.status !== 200) {
+                  console.error(res);
+                } else {
+                  _this2.isHidden = true;
+
+                  _this2.$emit("deleted", true);
+                }
+
+              case 4:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
       }))();
     },
     getImg: function getImg() {
@@ -2433,11 +2478,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return res;
     },
     loaded: function loaded() {
-      var _this2 = this;
-
-      setTimeout(function () {
-        _this2.loading = false;
-      }, 100);
+      this.loading = false;
     }
   },
   computed: {
@@ -2750,6 +2791,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["profileId", "user"],
   mounted: function mounted() {},
@@ -2872,18 +2917,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   },
   methods: {
     loaded: function loaded() {
-      var _this2 = this;
-
-      setTimeout(function () {
-        _this2.loading = false;
-      }, 100);
+      this.loading = false;
     },
     reload: function reload() {
       this.getFollowersCount();
       this.getFollowingCount();
     },
     getDetails: function getDetails() {
-      var _this3 = this;
+      var _this2 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
         var res;
@@ -2892,20 +2933,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             switch (_context.prev = _context.next) {
               case 0:
                 _context.prev = 0;
-                _this3.loading = true;
+                _this2.loading = true;
                 _context.next = 4;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/profile/" + _this3.profileId + "/details");
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/profile/" + _this2.profileId + "/details");
 
               case 4:
                 res = _context.sent;
-                _this3.profileDetails = res.data;
-                _this3.profileDetails.picture = _this3.getImage();
+                _this2.profileDetails = res.data;
+                _this2.profileDetails.picture = _this2.getImage();
 
-                _this3.getMessagesCount();
+                _this2.getMessagesCount();
 
-                _this3.getFollowersCount();
+                _this2.getFollowersCount();
 
-                _this3.getFollowingCount(); //
+                _this2.getFollowingCount(); //
 
 
                 _context.next = 15;
@@ -2925,7 +2966,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }))();
     },
     getMessagesCount: function getMessagesCount() {
-      var _this4 = this;
+      var _this3 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
         var res;
@@ -2935,11 +2976,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 0:
                 _context2.prev = 0;
                 _context2.next = 3;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/profile/" + _this4.profileId + "/messagesCount");
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/profile/" + _this3.profileId + "/messagesCount");
 
               case 3:
                 res = _context2.sent;
-                _this4.messagesCount = res.data;
+                _this3.messagesCount = res.data;
                 _context2.next = 10;
                 break;
 
@@ -2957,7 +2998,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }))();
     },
     getFollowersCount: function getFollowersCount() {
-      var _this5 = this;
+      var _this4 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
         var res;
@@ -2967,11 +3008,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 0:
                 _context3.prev = 0;
                 _context3.next = 3;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/profile/" + _this5.profileId + "/followersCount");
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/profile/" + _this4.profileId + "/followersCount");
 
               case 3:
                 res = _context3.sent;
-                _this5.followersCount = res.data;
+                _this4.followersCount = res.data;
                 _context3.next = 10;
                 break;
 
@@ -2989,7 +3030,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }))();
     },
     getFollowingCount: function getFollowingCount() {
-      var _this6 = this;
+      var _this5 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4() {
         var res;
@@ -2999,11 +3040,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 0:
                 _context4.prev = 0;
                 _context4.next = 3;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/profile/" + _this6.profileId + "/followingCount");
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/profile/" + _this5.profileId + "/followingCount");
 
               case 3:
                 res = _context4.sent;
-                _this6.followingCount = res.data;
+                _this5.followingCount = res.data;
                 _context4.next = 10;
                 break;
 
@@ -39919,6 +39960,23 @@ var render = function() {
               })
             ],
             1
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "mt-2" },
+            _vm._l(_vm.tags, function(tag) {
+              return _c(
+                "button",
+                {
+                  key: tag.id,
+                  staticClass: "btn btn-outline-info btn-sm",
+                  staticStyle: { margin: "2px 3px" }
+                },
+                [_vm._v("\n        " + _vm._s(tag.label) + "\n      ")]
+              )
+            }),
+            0
           )
         ])
       ])
@@ -40166,18 +40224,14 @@ var render = function() {
         attrs: { "profile-id": _vm.profileId, user: _vm.user }
       }),
       _vm._v(" "),
-      _c("profile-messages", {
-        directives: [
-          {
-            name: "show",
-            rawName: "v-show",
-            value: _vm.show,
-            expression: "show"
-          }
-        ],
-        attrs: { user: _vm.user, "profile-id": _vm.profileId },
-        on: { deleted: _vm.deleteMsg }
-      })
+      _vm.show
+        ? _c("profile-messages", {
+            attrs: { user: _vm.user, "profile-id": _vm.profileId },
+            on: { deleted: _vm.deleteMsg }
+          })
+        : _c("loading-spinner", {
+            style: { width: "200px", margin: 0 + " auto" }
+          })
     ],
     1
   )

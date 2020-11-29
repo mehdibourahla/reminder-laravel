@@ -9,11 +9,15 @@
     </profile-details>
     <follows-modal :profile-id="profileId" :user="user"></follows-modal>
     <profile-messages
-      v-show="show"
+      v-if="show"
       :user="user"
       :profile-id="profileId"
       @deleted="deleteMsg"
     ></profile-messages>
+    <loading-spinner
+      v-else
+      v-bind:style="{ width: '200px', margin: 0 + ' auto' }"
+    ></loading-spinner>
   </div>
 </template>
 
