@@ -11,6 +11,108 @@ use Illuminate\Support\Facades\DB;
 class MessagesController extends Controller
 {
 
+    public function index()
+    {
+        $user = auth()->user() ? auth()->user() : false;
+        return view('messages.index', compact('user'));
+    }
+
+    public function create()
+    {
+        return view('messages.create');
+    }
+
+    public function show(Message $message)
+    {
+        return view('messages.show', compact('message'));
+    }
+
+    public function store()
+    {
+        $tags = json_decode(request()->tags);
+        request()->merge(['tags' => $tags]);
+        $message_data = request()->validate([
+            'caption' => 'required',
+            'description' => 'required',
+
+        ]);
+
+        $tag_data = request()->validate([
+            'tags' => 'required|array',
+            'tags.*' => 'required|distinct'
+        ]);
+
+        $created_message = auth()->user()->messages()->create($message_data);
+
+        foreach ($tags as $tag) {
+            if (Tag::where('label', '=', $tag)->exists()) {
+                $created_tag = Tag::where('label', $tag)->first();
+            } else {
+                $created_tag = Tag::create(['label' => $tag]);
+            }
+            $created_message->tags()->attach($created_tag);
+        }
+
+        return redirect('/profile/' . auth()->user()->id);
+    }
+
+    public function edit(Message $message)
+    {
+        $this->authorize('update', $message);
+        $tags = array_column($message->tags()->get(['label'])->toArray(), 'label');
+        $tags = implode(",", $tags);
+        return view('messages.edit', compact('message', 'tags'));
+    }
+
+    public function update(Message $message)
+    {
+        $user = auth()->user();
+        if ($user->can('update', $message)) {
+            $tags = json_decode(request()->tags);
+            request()->merge(['tags' => $tags]);
+            $message_data = request()->validate([
+                'caption' => 'required',
+                'description' => 'required',
+
+            ]);
+
+            $tag_data = request()->validate([
+                'tags' => 'required|array',
+                'tags.*' => 'required|distinct'
+            ]);
+
+            $message->update($message_data);
+            DB::table('message_tag')->where('message_id', $message->id)->delete();
+
+            foreach ($tags as $tag) {
+                if (Tag::where('label', '=', $tag)->exists()) {
+                    $created_tag = Tag::where('label', $tag)->first();
+                } else {
+                    $created_tag = Tag::create(['label' => $tag]);
+                }
+                $message->tags()->attach($created_tag);
+            }
+        }
+        return redirect('/profile/' . auth()->user()->id);
+    }
+
+    public function delete(Message $message)
+    {
+        $user = auth()->user();
+        try {
+            if ($user->can('delete', $message)) {
+                DB::table('message_tag')->where('message_id', $message->id)->delete();
+                DB::table('message_profile')->where('message_id', $message->id)->delete();
+                Message::destroy($message->id);
+                return response()->json('Message deleted');
+            } else {
+                return response()->json('You shall not pass ! ', 403);
+            }
+        } catch (Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
     public function postReaction(Message $message)
     {
         $profile = auth()->user()->profile->id;
@@ -83,83 +185,10 @@ class MessagesController extends Controller
     {
         return $message->tags()->get(['tags.id', 'label']);
     }
-
-    public function index()
+    public function getSuggestions(Request $request)
     {
-        $user = auth()->user() ? auth()->user() : false;
-        return view('messages.index', compact('user'));
-    }
-
-    public function create()
-    {
-        return view('messages.create');
-    }
-
-    public function show(Message $message)
-    {
-        return view('messages.show', compact('message'));
-    }
-
-    public function store()
-    {
-        $data = request()->validate([
-            'caption' => 'required',
-            'description' => 'required'
-        ]);
-
-        $created_message = auth()->user()->messages()->create($data);
-
-        $tags = json_decode(request()->tags);
-        foreach ($tags as $tag) {
-            $created_tag = Tag::create(['label' => $tag]);
-            $created_message->tags()->attach($created_tag);
-        }
-
-        return redirect('/profile/' . auth()->user()->id);
-    }
-
-    public function edit(Message $message)
-    {
-        $this->authorize('update', $message);
-        $tags = array_column($message->tags()->get(['label'])->toArray(), 'label');
-        $tags = implode(",", $tags);
-        return view('messages.edit', compact('message', 'tags'));
-    }
-
-    public function update(Message $message)
-    {
-        $user = auth()->user();
-        if ($user->can('update', $message)) {
-            $data = request()->validate([
-                'caption' => 'required',
-                'description' => 'required'
-            ]);
-
-            $message->update($data);
-            DB::table('message_tag')->where('message_id', $message->id)->delete();
-            $tags = json_decode(request()->tags);
-            foreach ($tags as $tag) {
-                $created_tag = Tag::create(['label' => $tag]);
-                $message->tags()->attach($created_tag);
-            }
-        }
-        return redirect('/profile/' . auth()->user()->id);
-    }
-
-    public function delete(Message $message)
-    {
-        $user = auth()->user();
-        try {
-            if ($user->can('delete', $message)) {
-                DB::table('message_tag')->where('message_id', $message->id)->delete();
-                DB::table('message_profile')->where('message_id', $message->id)->delete();
-                Message::destroy($message->id);
-                return response()->json('Message deleted');
-            } else {
-                return response()->json('You shall not pass ! ', 403);
-            }
-        } catch (Exception $e) {
-            return response()->json($e->getMessage(), 500);
-        }
+        $text = $request->route('text');
+        $suggestions = Tag::where('label', 'LIKE', "%{$text}%")->take(5)->get();
+        return json_encode($suggestions);
     }
 }

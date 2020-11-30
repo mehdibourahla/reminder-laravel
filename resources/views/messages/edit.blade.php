@@ -44,13 +44,12 @@
                                     tags with a
                                     comma.</small></label>
 
-                            <input id="hashtags" name="tag" type="text"
-                                class="form-control @error('tag') is-invalid @enderror"
-                                value="{{ old('tag') ?? $tags, }}" autocomplete="off" autofocus>
+                            <input id="hashtags" type="text" class="form-control @error('tags.*') is-invalid @enderror"
+                                value="{{ old('tag') ?? $tags . ',' }}" autocomplete="off" autofocus>
                             <div class="tag-container">
                             </div>
 
-                            @error('tag')
+                            @error('tags.*')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>

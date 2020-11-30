@@ -7,7 +7,6 @@
 require("./bootstrap");
 
 window.Vue = require("vue");
-import VueElementLoading from "vue-element-loading";
 
 if (document.querySelector("meta[name='user-id']")) {
     Vue.prototype.$userId = document
@@ -69,7 +68,10 @@ Vue.component(
 );
 Vue.component("loading-spinner", require("./components/Loading.vue").default);
 
-Vue.component("VueElementLoading", VueElementLoading);
+Vue.component(
+    "tag-suggestion",
+    require("./components/TagSuggestion.vue").default
+);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

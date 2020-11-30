@@ -43,11 +43,16 @@
                             tags with a
                             comma.</small></label>
 
-                    <input id="hashtags" name="tag" type="text" class="form-control @error('tag') is-invalid @enderror"
-                        value="{{ old('tag') }}" autocomplete="off" autofocus>
-                    <div class="tag-container"></div>
+                    <input id="hashtags" type="text" oninput="addTag()"
+                        class="form-control @error('tags.*') is-invalid @enderror" value="{{ old('tag') }}"
+                        autocomplete="off" autofocus>
+                    <div class="d-block">
+                        <tag-suggestion onclick="addTag()"></tag-suggestion>
+                        <div class="tag-container"></div>
+                    </div>
 
-                    @error('tag')
+
+                    @error('tags.*')
                     <span class="invalid-feedback" role="alert">
                         <strong>{{ $message }}</strong>
                     </span>
@@ -58,55 +63,55 @@
                 </div>
             </div>
         </div>
+
     </form>
-
-
 </div>
 @endsection
 
 @push('js')
 <script>
-    document.addEventListener('DOMContentLoaded', init, false);
+    document.addEventListener('DOMContentLoaded', init);
+    let hashtagArray = [];  
 function init(){
-let input = document.querySelector('#hashtags');
-let container = document.querySelector('.tag-container');
-let hashtagArray = [];
-input.addEventListener('input', message, true);
-  function message (event) {
+    let form = document.querySelector("#create_message");
+    form.onsubmit = (e)=>{
+        e.preventDefault();
+        let tag = document.createElement('input')
+            tag.setAttribute('name','tags');
+            tag.setAttribute('value',JSON.stringify(hashtagArray));
+            tag.setAttribute('type','hidden');
+            form.appendChild(tag);
+        form.submit();
+    };
+};
+
+function addTag(){
+    console.log("dd")
+    let container = document.querySelector('.tag-container');
+    let input = document.querySelector('#hashtags');
     if (input.value.includes(',') && input.value.length > 1) {
-        let tags = input.value.split(',');
-        tags.forEach(tag => {
-            if(tag.length >1){
-                let text = document.createTextNode(tag);
-                let p = document.createElement('p');
+          let tags = input.value.split(',');
+          tags.forEach(tag => {
+              if(tag.length >1){
+                  let text = document.createTextNode(tag);
+                  let p = document.createElement('p');
+  
+                  p.appendChild(text);
+                  p.classList.add('tag');
+                  p.addEventListener('click', () => {
+                      let index = Array.from(p.parentNode.children).indexOf(p);
+                      hashtagArray.splice(index,1);
+                      console.log(hashtagArray);
+                      container.removeChild(p);
+                      });
+  
+                  container.appendChild(p);
+                  hashtagArray.push(tag);
+              }
+          });
+        input.value = '';
+      }
+}
 
-                p.appendChild(text);
-                p.classList.add('tag');
-                p.addEventListener('click', () => {
-                    let index = Array.from(p.parentNode.children).indexOf(p);
-                    hashtagArray.splice(index,1);
-                    console.log(hashtagArray);
-                    container.removeChild(p);
-                    });
-
-                container.appendChild(p);
-                hashtagArray.push(tag);
-            }
-        });
-      input.value = '';
-    }
-  }
-  let form = document.querySelector("#create_message");
-form.onsubmit = (e)=>{
-    e.preventDefault();
-    let keys = Object.keys(hashtagArray);
-    let tag = document.createElement('input')
-        tag.setAttribute('name','tags');
-        tag.setAttribute('value',JSON.stringify(hashtagArray));
-        tag.setAttribute('type','hidden');
-        form.appendChild(tag);
-    form.submit();
-};
-};
 </script>
 @endpush
