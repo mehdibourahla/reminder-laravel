@@ -27,7 +27,7 @@ export default {
       this.$emit("queryChanged", "likes");
     },
     showFavourite() {
-      this.$emit("queryChanged", "fav");
+      this.$emit("queryChanged", "favourites");
     },
     showHiden() {
       this.$emit("queryChanged", "hidden");

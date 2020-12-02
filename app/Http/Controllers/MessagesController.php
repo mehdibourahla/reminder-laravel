@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Message;
 use App\Tag;
+use App\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -83,7 +84,7 @@ class MessagesController extends Controller
 
             $message->update($message_data);
             DB::table('message_tag')->where('message_id', $message->id)->delete();
-
+            Tag::doesntHave('messages')->delete();
             foreach ($tags as $tag) {
                 if (Tag::where('label', '=', $tag)->exists()) {
                     $created_tag = Tag::where('label', $tag)->first();
@@ -103,6 +104,7 @@ class MessagesController extends Controller
             if ($user->can('delete', $message)) {
                 DB::table('message_tag')->where('message_id', $message->id)->delete();
                 DB::table('message_profile')->where('message_id', $message->id)->delete();
+                Tag::doesntHave('messages')->delete();
                 Message::destroy($message->id);
                 return response()->json('Message deleted');
             } else {
@@ -111,6 +113,11 @@ class MessagesController extends Controller
         } catch (Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
+    }
+
+    public function showTag(Tag $tag)
+    {
+        return view('tags.show', compact('tag'));
     }
 
     public function postReaction(Message $message)
@@ -153,31 +160,56 @@ class MessagesController extends Controller
         return response()->json($fav);
     }
 
-    public function getFollowedMessages()
+    public function getMessages(Request $request, $filter = null)
     {
-        $followedUsers = auth()->user()->following()->pluck('profiles.user_id');
-
-        $messages = DB::table('users')
-            ->join('messages', 'users.id', 'messages.user_id')
+        $messages = Message::select(
+            'users.id',
+            'users.username',
+            'profiles.*',
+            'messages.*',
+            DB::raw('group_concat(type) as type ')
+        )
+            ->join('users', 'users.id', 'messages.user_id')
             ->join('profiles', 'users.id', 'profiles.user_id')
-            ->whereIn('users.id', $followedUsers)
-            ->select('users.username', 'profiles.*', 'messages.*')
-            ->get();
+            ->leftJoin('message_profile', 'message_profile.message_id', 'messages.id');
 
-        $reactions = DB::table('profiles')
-            ->join('message_profile', 'profiles.id', 'message_profile.profile_id')
-            ->where('profiles.id', '=', auth()->user()->id)
-            ->select('message_id', 'type')
-            ->get();
-
-        foreach ($messages as $message) {
-            $message->type = array();
-            foreach ($reactions as $reaction) {
-                if ($reaction->message_id == $message->id) {
-                    array_push($message->type, $reaction->type);
+        // Explorer (Followed users' messages)
+        if ($request->has('user')) {
+            $user = User::find($request->user);
+            $followedUsers = $user->following()->pluck('profiles.user_id');
+            $messages = $messages->whereIn('messages.user_id', $followedUsers);
+        }
+        // Profile (Profile's messages)
+        if ($request->has('profile')) {
+            if ($filter) {
+                $userReactions = auth()->user()->profile->reacts()->pluck('messages.id');
+                Log::debug($userReactions);
+                $messages = $messages->whereIn('messages.id', $userReactions);
+                if ($filter == 'likes') {
+                    $messages = $messages->where('message_profile.type', 'like');
                 }
+                if ($filter == 'favourites') {
+                    $messages = $messages->where('message_profile.type', 'fav');
+                }
+                if ($filter == 'hidden') {
+                    $messages = $messages->where('message_profile.type', 'hide');
+                }
+            } else {
+                $profile = $request->profile;
+                $messages = $messages->where('messages.user_id', $profile);
             }
         }
+        // Tag  (Tag's messages)
+        if ($request->has('tag')) {
+            $tag = Tag::find($request->tag)->messages()->pluck('messages.id');
+            $messages = $messages->whereIn('messages.id', $tag);
+        }
+
+        // GET 
+        $messages = $messages
+            ->groupBy('messages.id');
+        $messages = $messages->get();
+
         return json_encode($messages);
     }
 
@@ -185,10 +217,11 @@ class MessagesController extends Controller
     {
         return $message->tags()->get(['tags.id', 'label']);
     }
+
     public function getSuggestions(Request $request)
     {
         $text = $request->route('text');
-        $suggestions = Tag::where('label', 'LIKE', "%{$text}%")->take(5)->get();
+        $suggestions = Tag::where('label', 'LIKE', "%{$text}%")->withCount('messages')->take(5)->get();
         return json_encode($suggestions);
     }
 }

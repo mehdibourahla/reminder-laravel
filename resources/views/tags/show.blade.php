@@ -2,7 +2,9 @@
 
 @section('content')
 <div class="container">
-    <explore-messages></explore-messages>
+
+    <tag-messages tag="{{ $tag }}"></tag-messages>
+
 </div>
 @endsection
 

@@ -18,6 +18,11 @@ class Message extends Model
         );
     }
 
+    public function setReactions($value)
+    {
+        $this->type = array_merge($this->type, [$value]);
+    }
+
     public function reactions()
     {
         return $this->belongsToMany(Profile::class)->withPivot('type');

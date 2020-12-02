@@ -15,7 +15,9 @@
           srcset=""
         />
         <strong>{{ suggestion.label }}</strong>
-        <span class="badge badge-primary badge-pill ml-3">14</span>
+        <span class="badge badge-primary badge-pill ml-3">{{
+          suggestion.messages_count
+        }}</span>
       </li>
     </ul>
   </div>

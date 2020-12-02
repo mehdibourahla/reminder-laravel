@@ -1,14 +1,9 @@
 <template>
   <div>
-    <div v-if="show">
-      <category-buttons @queryChanged="filter"></category-buttons>
-    </div>
     <div class="row d-flex">
       <message-component
         v-for="message in messages"
-        v-on="$listeners"
         :key="message.id"
-        :query="query"
         :message="message"
       ></message-component>
     </div>
@@ -18,7 +13,7 @@
 <script>
 import axios from "axios";
 export default {
-  props: ["profileId"],
+  props: ["tag"],
   mounted() {
     this.getData();
   },
@@ -26,7 +21,6 @@ export default {
   data: function () {
     return {
       messages: null,
-      query: "/api/profile/m",
     };
   },
   methods: {
@@ -39,30 +33,25 @@ export default {
       }
       return 0;
     },
-    filter(value) {
-      this.messages = null;
-      this.query = "/api/profile/" + value;
 
-      this.getData();
-    },
     async getData() {
       try {
-        let res = await axios.get(this.query, {
+        let tagId = JSON.parse(this.tag).id;
+        let res = await axios.get("/api/tag", {
           params: {
-            profile: this.profileId,
+            tag: tagId,
           },
         });
         this.messages = res.data;
         this.messages.sort(this.compare);
       } catch (error) {
-        console.error(error);
+        console.error("You shall not pass ! ");
       }
     },
   },
+
   computed: {
-    show() {
-      return this.$userId ? this.$userId == this.profileId : false;
-    },
+    show() {},
   },
 };
 </script>

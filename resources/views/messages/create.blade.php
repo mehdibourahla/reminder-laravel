@@ -43,7 +43,7 @@
                             tags with a
                             comma.</small></label>
 
-                    <input id="hashtags" type="text" oninput="addTag()"
+                    <input id="hashtags" name="tag" type="text" oninput="addTag()"
                         class="form-control @error('tags.*') is-invalid @enderror" value="{{ old('tag') }}"
                         autocomplete="off" autofocus>
                     <div class="d-block">
@@ -54,7 +54,7 @@
 
                     @error('tags.*')
                     <span class="invalid-feedback" role="alert">
-                        <strong>{{ $message }}</strong>
+                        <strong>{{ 'The tags field has a duplicate value.' }}</strong>
                     </span>
                     @enderror
                 </div>
@@ -73,6 +73,7 @@
     document.addEventListener('DOMContentLoaded', init);
     let hashtagArray = [];  
 function init(){
+    addTag();
     let form = document.querySelector("#create_message");
     form.onsubmit = (e)=>{
         e.preventDefault();
@@ -81,12 +82,12 @@ function init(){
             tag.setAttribute('value',JSON.stringify(hashtagArray));
             tag.setAttribute('type','hidden');
             form.appendChild(tag);
-        form.submit();
+            document.querySelector('#hashtags').value = hashtagArray.join(',');
+            form.submit();
     };
 };
 
 function addTag(){
-    console.log("dd")
     let container = document.querySelector('.tag-container');
     let input = document.querySelector('#hashtags');
     if (input.value.includes(',') && input.value.length > 1) {

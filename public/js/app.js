@@ -1922,6 +1922,8 @@ module.exports = {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -1940,17 +1942,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
-//
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["user"],
+  props: [""],
   mounted: function mounted() {
     this.getData();
   },
   data: function data() {
     return {
-      messages: null,
-      query: "/api/m/followedMsgs"
+      messages: null
     };
   },
   methods: {
@@ -1974,36 +1974,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
-                return fetch(_this.query);
+                _context.prev = 0;
+                _context.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/m/followedMsgs", {
+                  params: {
+                    user: _this.$userId
+                  }
+                });
 
-              case 2:
+              case 3:
                 res = _context.sent;
+                _this.messages = res.data;
 
-                if (res.ok) {
-                  _context.next = 7;
-                  break;
-                }
+                _this.messages.sort(_this.compare);
 
-                console.error("You shall not pass ! ");
                 _context.next = 11;
                 break;
 
-              case 7:
-                _context.next = 9;
-                return res.json();
-
-              case 9:
-                _this.messages = _context.sent;
-
-                _this.messages.sort(_this.compare);
+              case 8:
+                _context.prev = 8;
+                _context.t0 = _context["catch"](0);
+                console.error("You shall not pass ! ");
 
               case 11:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee);
+        }, _callee, null, [[0, 8]]);
       }))();
     }
   },
@@ -2387,18 +2385,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["message", "query", "user"],
-  mounted: function mounted() {
-    this.getTags();
-  },
+  props: ["message", "query"],
+  mounted: function mounted() {},
   data: function data() {
     return {
       msg: this.message,
-      isLiked: this.message.type.includes("like"),
-      isFavourite: this.message.type.includes("fav"),
-      isHidden: this.message.type.includes("hide"),
+      filter: this.query ? this.query : "m",
+      isLiked: this.message.type ? this.message.type.includes("like") : false,
+      isFavourite: this.message.type ? this.message.type.includes("fav") : false,
+      isHidden: this.message.type ? this.message.type.includes("hide") : false,
       tags: null,
       loading: true
     };
@@ -2409,6 +2407,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     fav: function fav(value) {
       this.isFavourite = value;
+    },
+    hide: function hide(value) {
+      this.isHidden = value;
     },
     getTags: function getTags() {
       var _this = this;
@@ -2479,22 +2480,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     loaded: function loaded() {
       this.loading = false;
+      this.getTags();
     }
   },
   computed: {
     showButtons: function showButtons() {
-      return this.user ? JSON.parse(this.user).id == this.msg.user_id : false;
+      return this.$userId ? this.$userId === this.msg.user_id : false;
     },
     showMessage: function showMessage() {
-      if (this.query.includes("likes")) {
+      console.log(this.filter);
+
+      if (this.filter.includes("likes")) {
         return this.isLiked && !this.isHidden;
       } else {
-        if (this.query.includes("fav")) {
+        if (this.filter.includes("favourites")) {
           return this.isFavourite && !this.isHidden;
         } else {
-          if (this.query.includes("m")) {
+          if (this.filter.includes("m")) {
             return !this.isHidden;
           } else {
+            console.log(this.isHidden);
             return this.isHidden;
           }
         }
@@ -2544,7 +2549,7 @@ __webpack_require__.r(__webpack_exports__);
       this.$emit("queryChanged", "likes");
     },
     showFavourite: function showFavourite() {
-      this.$emit("queryChanged", "fav");
+      this.$emit("queryChanged", "favourites");
     },
     showHiden: function showHiden() {
       this.$emit("queryChanged", "hidden");
@@ -3092,6 +3097,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -3115,16 +3122,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["profileId", "user"],
+  props: ["profileId"],
   mounted: function mounted() {
     this.getData();
   },
   data: function data() {
     return {
       messages: null,
-      query: "/api/profile/" + this.profileId + "/" + "m"
+      query: "/api/profile/m"
     };
   },
   methods: {
@@ -3141,7 +3148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     filter: function filter(value) {
       this.messages = null;
-      this.query = "/api/profile/" + this.profileId + "/" + value;
+      this.query = "/api/profile/" + value;
       this.getData();
     },
     getData: function getData() {
@@ -3153,42 +3160,40 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
-                return fetch(_this.query);
+                _context.prev = 0;
+                _context.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get(_this.query, {
+                  params: {
+                    profile: _this.profileId
+                  }
+                });
 
-              case 2:
+              case 3:
                 res = _context.sent;
+                _this.messages = res.data;
 
-                if (res.ok) {
-                  _context.next = 7;
-                  break;
-                }
+                _this.messages.sort(_this.compare);
 
-                console.error("You shall not pass ! ");
                 _context.next = 11;
                 break;
 
-              case 7:
-                _context.next = 9;
-                return res.json();
-
-              case 9:
-                _this.messages = _context.sent;
-
-                _this.messages.sort(_this.compare);
+              case 8:
+                _context.prev = 8;
+                _context.t0 = _context["catch"](0);
+                console.error(_context.t0);
 
               case 11:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee);
+        }, _callee, null, [[0, 8]]);
       }))();
     }
   },
   computed: {
     show: function show() {
-      return this.user ? JSON.parse(this.user).id == this.profileId : false;
+      return this.$userId ? this.$userId == this.profileId : false;
     }
   }
 });
@@ -3299,6 +3304,108 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/TagComponents/TagMessages.vue?vue&type=script&lang=js&":
+/*!************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/TagComponents/TagMessages.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ["tag"],
+  mounted: function mounted() {
+    this.getData();
+  },
+  data: function data() {
+    return {
+      messages: null
+    };
+  },
+  methods: {
+    compare: function compare(a, b) {
+      if (a.created_at < b.created_at) {
+        return 1;
+      }
+
+      if (a.created_at > b.created_at) {
+        return -1;
+      }
+
+      return 0;
+    },
+    getData: function getData() {
+      var _this = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        var tagId, res;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.prev = 0;
+                tagId = JSON.parse(_this.tag).id;
+                _context.next = 4;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/tag", {
+                  params: {
+                    tag: tagId
+                  }
+                });
+
+              case 4:
+                res = _context.sent;
+                _this.messages = res.data;
+
+                _this.messages.sort(_this.compare);
+
+                _context.next = 12;
+                break;
+
+              case 9:
+                _context.prev = 9;
+                _context.t0 = _context["catch"](0);
+                console.error("You shall not pass ! ");
+
+              case 12:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, null, [[0, 9]]);
+      }))();
+    }
+  },
+  computed: {
+    show: function show() {}
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/TagSuggestion.vue?vue&type=script&lang=js&":
 /*!************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/TagSuggestion.vue?vue&type=script&lang=js& ***!
@@ -3316,6 +3423,8 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+//
+//
 //
 //
 //
@@ -47938,7 +48047,7 @@ var render = function() {
       _vm._l(_vm.messages, function(message) {
         return _c("message-component", {
           key: message.id,
-          attrs: { user: _vm.user, message: message, query: _vm.query }
+          attrs: { message: message }
         })
       }),
       1
@@ -48217,11 +48326,7 @@ var render = function() {
               _vm._v(" "),
               _c("hide-button", {
                 attrs: { "message-id": _vm.msg.id, "is-hidden": _vm.isHidden },
-                on: {
-                  statusChanged: function($event) {
-                    _vm.isHidden = $event
-                  }
-                }
+                on: { statusChanged: _vm.hide }
               })
             ],
             1
@@ -48232,11 +48337,12 @@ var render = function() {
             { staticClass: "mt-2" },
             _vm._l(_vm.tags, function(tag) {
               return _c(
-                "button",
+                "a",
                 {
                   key: tag.id,
                   staticClass: "btn btn-outline-info btn-sm",
-                  staticStyle: { margin: "2px 3px" }
+                  staticStyle: { margin: "2px 3px" },
+                  attrs: { href: "/tag/" + tag.id }
                 },
                 [_vm._v("\n        " + _vm._s(tag.label) + "\n      ")]
               )
@@ -48662,10 +48768,7 @@ var render = function() {
         return _c(
           "message-component",
           _vm._g(
-            {
-              key: message.id,
-              attrs: { user: _vm.user, query: _vm.query, message: message }
-            },
+            { key: message.id, attrs: { query: _vm.query, message: message } },
             _vm.$listeners
           )
         )
@@ -48750,6 +48853,42 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/TagComponents/TagMessages.vue?vue&type=template&id=1e94a24c&":
+/*!****************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/TagComponents/TagMessages.vue?vue&type=template&id=1e94a24c& ***!
+  \****************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c(
+      "div",
+      { staticClass: "row d-flex" },
+      _vm._l(_vm.messages, function(message) {
+        return _c("message-component", {
+          key: message.id,
+          attrs: { message: message }
+        })
+      }),
+      1
+    )
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/TagSuggestion.vue?vue&type=template&id=43750c3a&":
 /*!****************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/TagSuggestion.vue?vue&type=template&id=43750c3a& ***!
@@ -48792,7 +48931,7 @@ var render = function() {
             _c("strong", [_vm._v(_vm._s(suggestion.label))]),
             _vm._v(" "),
             _c("span", { staticClass: "badge badge-primary badge-pill ml-3" }, [
-              _vm._v("14")
+              _vm._v(_vm._s(suggestion.messages_count))
             ])
           ]
         )
@@ -61008,6 +61147,7 @@ Vue.component("message-component", __webpack_require__(/*! ./components/MessageC
 Vue.component("category-buttons", __webpack_require__(/*! ./components/ProfileComponents/CategoryButtons.vue */ "./resources/js/components/ProfileComponents/CategoryButtons.vue")["default"]);
 Vue.component("profile-messages", __webpack_require__(/*! ./components/ProfileComponents/ProfileMessages.vue */ "./resources/js/components/ProfileComponents/ProfileMessages.vue")["default"]);
 Vue.component("explore-messages", __webpack_require__(/*! ./components/ExploreComponents/ExploreMessages.vue */ "./resources/js/components/ExploreComponents/ExploreMessages.vue")["default"]);
+Vue.component("tag-messages", __webpack_require__(/*! ./components/TagComponents/TagMessages.vue */ "./resources/js/components/TagComponents/TagMessages.vue")["default"]);
 Vue.component("profile-details", __webpack_require__(/*! ./components/ProfileComponents/ProfileDetails.vue */ "./resources/js/components/ProfileComponents/ProfileDetails.vue")["default"]);
 Vue.component("profile-container", __webpack_require__(/*! ./components/ProfileComponents/ProfileContainer.vue */ "./resources/js/components/ProfileComponents/ProfileContainer.vue")["default"]);
 Vue.component("follows-modal", __webpack_require__(/*! ./components/ProfileComponents/FollowsModal.vue */ "./resources/js/components/ProfileComponents/FollowsModal.vue")["default"]);
@@ -61963,6 +62103,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ProfilePreview_vue_vue_type_template_id_0541815a___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ProfilePreview_vue_vue_type_template_id_0541815a___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/TagComponents/TagMessages.vue":
+/*!***************************************************************!*\
+  !*** ./resources/js/components/TagComponents/TagMessages.vue ***!
+  \***************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _TagMessages_vue_vue_type_template_id_1e94a24c___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TagMessages.vue?vue&type=template&id=1e94a24c& */ "./resources/js/components/TagComponents/TagMessages.vue?vue&type=template&id=1e94a24c&");
+/* harmony import */ var _TagMessages_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TagMessages.vue?vue&type=script&lang=js& */ "./resources/js/components/TagComponents/TagMessages.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _TagMessages_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _TagMessages_vue_vue_type_template_id_1e94a24c___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _TagMessages_vue_vue_type_template_id_1e94a24c___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/TagComponents/TagMessages.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/TagComponents/TagMessages.vue?vue&type=script&lang=js&":
+/*!****************************************************************************************!*\
+  !*** ./resources/js/components/TagComponents/TagMessages.vue?vue&type=script&lang=js& ***!
+  \****************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_TagMessages_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./TagMessages.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/TagComponents/TagMessages.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_TagMessages_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/TagComponents/TagMessages.vue?vue&type=template&id=1e94a24c&":
+/*!**********************************************************************************************!*\
+  !*** ./resources/js/components/TagComponents/TagMessages.vue?vue&type=template&id=1e94a24c& ***!
+  \**********************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_TagMessages_vue_vue_type_template_id_1e94a24c___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./TagMessages.vue?vue&type=template&id=1e94a24c& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/TagComponents/TagMessages.vue?vue&type=template&id=1e94a24c&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_TagMessages_vue_vue_type_template_id_1e94a24c___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_TagMessages_vue_vue_type_template_id_1e94a24c___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

@@ -51,6 +51,10 @@ Vue.component(
     require("./components/ExploreComponents/ExploreMessages.vue").default
 );
 Vue.component(
+    "tag-messages",
+    require("./components/TagComponents/TagMessages.vue").default
+);
+Vue.component(
     "profile-details",
     require("./components/ProfileComponents/ProfileDetails.vue").default
 );

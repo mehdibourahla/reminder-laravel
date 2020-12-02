@@ -56,19 +56,20 @@
         <hide-button
           :message-id="msg.id"
           :is-hidden="isHidden"
-          @statusChanged="isHidden = $event"
+          @statusChanged="hide"
         >
         </hide-button>
       </div>
       <div class="mt-2">
-        <button
+        <a
           v-for="tag in tags"
           :key="tag.id"
+          :href="'/tag/' + tag.id"
           class="btn btn-outline-info btn-sm"
           style="margin: 2px 3px"
         >
           {{ tag.label }}
-        </button>
+        </a>
       </div>
     </div>
   </div>
@@ -77,18 +78,19 @@
 <script>
 import axios from "axios";
 export default {
-  props: ["message", "query", "user"],
+  props: ["message", "query"],
 
-  mounted: function () {
-    this.getTags();
-  },
+  mounted: function () {},
 
   data: function () {
     return {
       msg: this.message,
-      isLiked: this.message.type.includes("like"),
-      isFavourite: this.message.type.includes("fav"),
-      isHidden: this.message.type.includes("hide"),
+      filter: this.query ? this.query : "m",
+      isLiked: this.message.type ? this.message.type.includes("like") : false,
+      isFavourite: this.message.type
+        ? this.message.type.includes("fav")
+        : false,
+      isHidden: this.message.type ? this.message.type.includes("hide") : false,
       tags: null,
       loading: true,
     };
@@ -100,6 +102,9 @@ export default {
     },
     fav(value) {
       this.isFavourite = value;
+    },
+    hide(value) {
+      this.isHidden = value;
     },
 
     async getTags() {
@@ -128,23 +133,26 @@ export default {
     },
     loaded() {
       this.loading = false;
+      this.getTags();
     },
   },
 
   computed: {
     showButtons() {
-      return this.user ? JSON.parse(this.user).id == this.msg.user_id : false;
+      return this.$userId ? this.$userId === this.msg.user_id : false;
     },
     showMessage() {
-      if (this.query.includes("likes")) {
+      console.log(this.filter);
+      if (this.filter.includes("likes")) {
         return this.isLiked && !this.isHidden;
       } else {
-        if (this.query.includes("fav")) {
+        if (this.filter.includes("favourites")) {
           return this.isFavourite && !this.isHidden;
         } else {
-          if (this.query.includes("m")) {
+          if (this.filter.includes("m")) {
             return !this.isHidden;
           } else {
+            console.log(this.isHidden);
             return this.isHidden;
           }
         }

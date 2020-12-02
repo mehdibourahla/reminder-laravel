@@ -44,14 +44,17 @@
                                     tags with a
                                     comma.</small></label>
 
-                            <input id="hashtags" type="text" class="form-control @error('tags.*') is-invalid @enderror"
+                            <input id="hashtags" name="tag" type="text" oninput="addTag()"
+                                class="form-control @error('tags.*') is-invalid @enderror"
                                 value="{{ old('tag') ?? $tags . ',' }}" autocomplete="off" autofocus>
-                            <div class="tag-container">
+                            <div class="d-block">
+                                <tag-suggestion onclick="addTag()"></tag-suggestion>
+                                <div class="tag-container"></div>
                             </div>
 
                             @error('tags.*')
                             <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
+                                <strong>{{ 'The tags field has a duplicate value.' }}</strong>
                             </span>
                             @enderror
                         </div>
@@ -68,49 +71,49 @@
 @endsection
 @push('js')
 <script>
-    document.addEventListener('DOMContentLoaded', init, false);
+    document.addEventListener('DOMContentLoaded', init);
+    let hashtagArray = [];  
 function init(){
-let input = document.querySelector('#hashtags');
-let container = document.querySelector('.tag-container');
-let hashtagArray = [];
-message();
-input.addEventListener('input', message, true);
+    addTag();
+    let form = document.querySelector("#edit_message");
+    form.onsubmit = (e)=>{
+        e.preventDefault();
+        let tag = document.createElement('input')
+            tag.setAttribute('name','tags');
+            tag.setAttribute('value',JSON.stringify(hashtagArray));
+            tag.setAttribute('type','hidden');
+            form.appendChild(tag);
+            document.querySelector('#hashtags').value = hashtagArray.join(',');
+            form.submit();
+    };
+};
 
-  function message (event) {
+function addTag(){
+    let container = document.querySelector('.tag-container');
+    let input = document.querySelector('#hashtags');
     if (input.value.includes(',') && input.value.length > 1) {
-        let tags = input.value.split(',');
-        tags.forEach(tag => {
-            if(tag.length >1){
-                let text = document.createTextNode(tag);
-                let p = document.createElement('p');
-
-                p.appendChild(text);
-                p.classList.add('tag');
-                p.addEventListener('click', () => {
-                    let index = Array.from(p.parentNode.children).indexOf(p);
-                    hashtagArray.splice(index,1);
-                    console.log(hashtagArray);
-                    container.removeChild(p);
-                    });
-
-                container.appendChild(p);
-                hashtagArray.push(tag);
-            }
-        });
-      input.value = '';
-    }
-  }
-  let form = document.querySelector("#edit_message");
-form.onsubmit = (e)=>{
-    e.preventDefault();
-    let keys = Object.keys(hashtagArray);
-    let tag = document.createElement('input')
-        tag.setAttribute('name','tags');
-        tag.setAttribute('value',JSON.stringify(hashtagArray));
-        tag.setAttribute('type','hidden');
-        form.appendChild(tag);
-    form.submit();
-};
-};
+        console.log("object")
+          let tags = input.value.split(',');
+          tags.forEach(tag => {
+              if(tag.length >1){
+                  let text = document.createTextNode(tag);
+                  let p = document.createElement('p');
+  
+                  p.appendChild(text);
+                  p.classList.add('tag');
+                  p.addEventListener('click', () => {
+                      let index = Array.from(p.parentNode.children).indexOf(p);
+                      hashtagArray.splice(index,1);
+                      console.log(hashtagArray);
+                      container.removeChild(p);
+                      });
+  
+                  container.appendChild(p);
+                  hashtagArray.push(tag);
+              }
+          });
+        input.value = '';
+      }
+}
 </script>
 @endpush

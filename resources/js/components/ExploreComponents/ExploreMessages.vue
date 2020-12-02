@@ -4,17 +4,16 @@
       <message-component
         v-for="message in messages"
         :key="message.id"
-        :user="user"
         :message="message"
-        :query="query"
       ></message-component>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
 export default {
-  props: ["user"],
+  props: [""],
   mounted() {
     this.getData();
   },
@@ -22,7 +21,6 @@ export default {
   data: function () {
     return {
       messages: null,
-      query: "/api/m/followedMsgs",
     };
   },
   methods: {
@@ -35,13 +33,18 @@ export default {
       }
       return 0;
     },
+
     async getData() {
-      let res = await fetch(this.query);
-      if (!res.ok) {
-        console.error("You shall not pass ! ");
-      } else {
-        this.messages = await res.json();
+      try {
+        let res = await axios.get("/api/m/followedMsgs", {
+          params: {
+            user: this.$userId,
+          },
+        });
+        this.messages = res.data;
         this.messages.sort(this.compare);
+      } catch (error) {
+        console.error("You shall not pass ! ");
       }
     },
   },
