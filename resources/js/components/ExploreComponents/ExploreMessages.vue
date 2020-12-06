@@ -12,10 +12,15 @@
 
 <script>
 import axios from "axios";
+
 export default {
   props: [""],
   mounted() {
     this.getData();
+    Echo.private("App.User." + this.$userId).notification((notification) => {
+      console.log("object");
+      console.log(notification.type);
+    });
   },
 
   data: function () {

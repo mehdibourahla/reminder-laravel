@@ -76,6 +76,7 @@ Vue.component(
     "tag-suggestion",
     require("./components/TagSuggestion.vue").default
 );
+Vue.component("notification", require("./components/Notification.vue").default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

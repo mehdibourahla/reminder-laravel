@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewPost;
+use App\Events\Reaction;
 use Illuminate\Http\Request;
 use App\Message;
 use App\Tag;
@@ -44,6 +46,7 @@ class MessagesController extends Controller
         ]);
 
         $created_message = auth()->user()->messages()->create($message_data);
+        event(new NewPost($created_message));
 
         foreach ($tags as $tag) {
             if (Tag::where('label', '=', $tag)->exists()) {
@@ -125,16 +128,20 @@ class MessagesController extends Controller
         $profile = auth()->user()->profile->id;
         $type = request()->reaction;
 
+        $query = $message->reactions();
+
         if ($message->checkReaction($profile, $type) > 0) {
-            return $message->reactions()->wherePivot('type', '=', $type)->detach(
+            $query = $query->wherePivot('type', '=', $type)->detach(
                 $profile
             );
         } else {
-            return $message->reactions()->attach(
+            $query = $query->attach(
                 $profile,
                 ['type' => $type]
             );
+            event(new Reaction($type, $message));
         }
+        return $query;
     }
 
     public function getLikes(Message $message)
@@ -183,7 +190,6 @@ class MessagesController extends Controller
         if ($request->has('profile')) {
             if ($filter) {
                 $userReactions = auth()->user()->profile->reacts()->pluck('messages.id');
-                Log::debug($userReactions);
                 $messages = $messages->whereIn('messages.id', $userReactions);
                 if ($filter == 'likes') {
                     $messages = $messages->where('message_profile.type', 'like');

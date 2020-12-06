@@ -61,34 +61,38 @@
                         </li>
                         @endif
                         @else
-                        <li class="nav-item dropdown d-flex">
+                        <li class="nav-item d-flex">
                             <a href="/m" class="pt-2 pr-3">
                                 <span class="text-dark">
                                     Explore
                                 </span>
                             </a>
+                            <notification></notification>
                             <a href="/m/create" class="pt-2 pr-3">
                                 <span class="text-dark">
                                     Post a message
                                 </span>
                             </a>
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                {{ Auth::user()->username }} <span class="caret"></span>
-                            </a>
+                            <div class="dropdown dropdown-btn">
 
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                    {{ __('Logout') }}
+
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    {{ Auth::user()->username }} <span class="caret"></span>
                                 </a>
-                                <a class="dropdown-item" href="/profile/{{Auth::user()->id}}">Go to profile </a>
-                                <a class="dropdown-item" href="/profile/{{Auth::user()->id}}/edit">Edit profile </a>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                                        {{ __('Logout') }}
+                                    </a>
+                                    <a class="dropdown-item" href="/profile/{{Auth::user()->id}}">Go to profile </a>
+                                    <a class="dropdown-item" href="/profile/{{Auth::user()->id}}/edit">Edit profile </a>
 
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                    style="display: none;">
-                                    @csrf
-                                </form>
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                        style="display: none;">
+                                        @csrf
+                                    </form>
+                                </div>
                             </div>
                         </li>
                         @endguest
@@ -97,9 +101,9 @@
             </div>
         </nav>
 
+
         <main class="py-4">
             @yield('content')
-
         </main>
     </div>
     @stack('js')

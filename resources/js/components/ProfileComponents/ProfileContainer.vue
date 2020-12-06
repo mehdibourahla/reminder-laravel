@@ -22,9 +22,12 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   props: ["profileId", "user"],
-  mounted() {},
+  mounted() {
+    // this.getNotifications();
+  },
 
   data: function () {
     return {

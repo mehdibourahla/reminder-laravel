@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewFollower;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
 use App\User;
@@ -12,7 +13,6 @@ use App\Profile;
 
 class ProfilesController extends Controller
 {
-    private $currentProfile;
 
     public function __construct(Request $request)
     {
@@ -71,7 +71,14 @@ class ProfilesController extends Controller
 
     public function follow(User $user)
     {
-        return auth()->user()->following()->toggle($user->profile);
+        $query = auth()->user();
+        if ($query->following->contains($user->id)) {
+            $query = $query->following()->detach($user->profile);
+        } else {
+            $query = $query->following()->attach($user->profile);
+            event(new NewFollower($user));
+        }
+        return $query;
     }
 
     public function removeFollower(User $user)

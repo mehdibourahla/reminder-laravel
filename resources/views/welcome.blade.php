@@ -83,6 +83,7 @@
         @endif
 
         <div class="content">
+
             <div class="title m-b-md">
                 Reminder App
             </div>

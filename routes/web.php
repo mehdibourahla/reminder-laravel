@@ -54,3 +54,7 @@ Route::post('/api/m/{message}/{reaction}', 'MessagesController@postReaction')->m
 Route::get('/api/tag/{text}/suggestions', 'MessagesController@getSuggestions');
 Route::get('/api/tag', 'MessagesController@getMessages');
 Route::get('/tag/{tag}', 'MessagesController@showTag')->name('tag.show');
+
+
+// API | NOTIFICATION
+Route::get('/api/notification/getNotifications', 'NotificationsController@getNotifications');
