@@ -42,7 +42,7 @@ class ProfilesController extends Controller
         $dataProfile = request()->validate([
             'bio' => '',
             'url' => 'nullable|url',
-            'picture' => 'image',
+            // 'picture' => 'image',
         ]);
 
         if (request('picture')) {
