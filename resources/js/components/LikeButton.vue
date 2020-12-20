@@ -1,55 +1,49 @@
 <template>
   <div>
-    <button
-      class="btn btn-danger mr-3"
+    <i
       @click="likeMessage"
-      v-text="buttonText + ' (' + likesCount + ')'"
-    ></button>
+      v-bind:class="buttonStyle"
+      class="fa-heart fa-2x text-danger mx-2"
+      style="cursor: pointer"
+    ></i>
   </div>
 </template>
 
 <script>
+var _ = require("lodash/array");
 export default {
-  props: ["messageId", "isLiked"],
+  props: ["messageId", "userReactions"],
   mounted() {
-    this.getLikeCount();
+    this.reactions = this.userReactions;
   },
 
   data: function () {
-    let likedMsg = this.isLiked;
     return {
-      status: likedMsg,
-      likesCount: 0,
+      loading: false,
+      reactions: [],
     };
   },
+
   methods: {
-    async getLikeCount() {
+    async likeMessage() {
       try {
-        const res = await axios.get("/api/m/" + this.messageId + "/likes");
-        this.likesCount = res.data.length;
+        this.loading = true;
+        this.reactions = _.xor(["like"], this.reactions);
+        this.$emit("statusChanged", this.reactions);
+        await axios.post("/api/m/" + this.messageId + "/like");
+        this.loading = false;
       } catch (error) {
         console.error(error);
       }
     },
-    likeMessage() {
-      axios
-        .post("/api/m/" + this.messageId + "/like")
-        .then((response) => {
-          this.status = !this.status;
-          this.getLikeCount();
-          this.$emit("statusChanged", this.status);
-        })
-        .catch((errors) => {
-          if (errors.response.status === 401) {
-            window.location = "/login";
-          }
-        });
-    },
   },
 
   computed: {
-    buttonText() {
-      return this.status ? "Unlike" : "Like";
+    buttonStyle: function () {
+      return {
+        far: !this.reactions.includes("like"),
+        fas: this.reactions.includes("like"),
+      };
     },
   },
 };

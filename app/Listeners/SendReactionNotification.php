@@ -29,9 +29,11 @@ class SendReactionNotification
      */
     public function handle(Reaction $event)
     {
-        $reactor = User::with('profile')->whereIn('id', [auth()->user()->id])->first();
-        $author = $event->message->user;
+        if ($event->up) {
+            $reactor = User::with('profile')->whereIn('id', [auth()->user()->id])->first();
+            $author = $event->message->user;
 
-        Notification::send($author, new ReactionNotification($reactor, $event->reaction, $event->message));
+            Notification::send($author, new ReactionNotification($reactor, $event->reaction, $event->message));
+        }
     }
 }

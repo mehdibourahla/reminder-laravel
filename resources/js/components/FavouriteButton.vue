@@ -1,55 +1,49 @@
 <template>
   <div>
-    <button
-      class="btn btn-warning mr-3 font-weight-bold"
+    <i
       @click="FavouriteMessage"
-      v-text="buttonText + ' (' + favCount + ')'"
-    ></button>
+      v-bind:class="buttonStyle"
+      class="fa-star fa-2x text-warning mx-2"
+      style="cursor: pointer"
+    >
+    </i>
   </div>
 </template>
 
 <script>
+var _ = require("lodash/array");
 export default {
-  props: ["message-id", "isFavourite"],
+  props: ["messageId", "userReactions"],
   mounted() {
-    this.getFavCount();
+    this.reactions = this.userReactions;
   },
 
   data: function () {
-    let favouriteMsg = this.isFavourite;
     return {
-      status: favouriteMsg,
-      favCount: 0,
+      loading: false,
+      reactions: [],
     };
   },
   methods: {
-    async getFavCount() {
+    async FavouriteMessage() {
       try {
-        const res = await axios.get("/api/m/" + this.messageId + "/fav");
-        this.favCount = res.data.length;
+        this.loading = true;
+        this.reactions = _.xor(["fav"], this.reactions);
+        this.$emit("statusChanged", this.reactions);
+        await axios.post("/api/m/" + this.messageId + "/fav");
+        this.loading = false;
       } catch (error) {
         console.error(error);
       }
     },
-    FavouriteMessage() {
-      axios
-        .post("/api/m/" + this.messageId + "/fav")
-        .then((response) => {
-          this.status = !this.status;
-          this.getFavCount();
-          this.$emit("statusChanged", this.status);
-        })
-        .catch((errors) => {
-          if (errors.response.status === 401) {
-            window.location = "/login";
-          }
-        });
-    },
   },
 
   computed: {
-    buttonText() {
-      return this.status ? "Remove from Favourite" : "Favourite";
+    buttonStyle: function () {
+      return {
+        far: !this.reactions.includes("fav"),
+        fas: this.reactions.includes("fav"),
+      };
     },
   },
 };

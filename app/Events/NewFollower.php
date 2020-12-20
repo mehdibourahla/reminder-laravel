@@ -10,7 +10,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class NewFollower
+class NewFollower implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -33,6 +33,10 @@ class NewFollower
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        return new Channel('channel-' . $this->following->id);
+    }
+    public function broadcastAs()
+    {
+        return 'notification-push';
     }
 }

@@ -21,6 +21,7 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/02a92eb33f.js" crossorigin="anonymous"></script>
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
@@ -101,12 +102,14 @@
             </div>
         </nav>
 
-
         <main class="py-4">
             @yield('content')
+            <push-notification></push-notification>
         </main>
     </div>
     @stack('js')
+
+
 </body>
 
 </html>

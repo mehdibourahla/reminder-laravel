@@ -77,7 +77,11 @@ Vue.component(
     require("./components/TagSuggestion.vue").default
 );
 Vue.component("notification", require("./components/Notification.vue").default);
-
+Vue.component(
+    "push-notification",
+    require("./components/PushNotification.vue").default
+);
+window.eventHub = new Vue();
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

@@ -102,7 +102,7 @@ function addTag(){
                   p.addEventListener('click', () => {
                       let index = Array.from(p.parentNode.children).indexOf(p);
                       hashtagArray.splice(index,1);
-                      console.log(hashtagArray);
+                      
                       container.removeChild(p);
                       });
   

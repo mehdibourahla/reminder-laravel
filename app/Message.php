@@ -11,11 +11,15 @@ class Message extends Model
 
     public function checkReaction($profile, $type)
     {
-        return count(
+
+        $count = count(
             $this->reactions()->where(
                 [['profile_id', '=', $profile], ['type', '=', $type]]
             )->get()
         );
+
+
+        return $count;
     }
 
     public function setReactions($value)

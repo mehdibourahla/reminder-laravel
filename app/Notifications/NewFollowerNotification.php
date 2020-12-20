@@ -55,7 +55,7 @@ class NewFollowerNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'follower' => $this->follower
+            'follower' => $this->follower,
         ];
     }
 }

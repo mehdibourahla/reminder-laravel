@@ -125,6 +125,7 @@ class MessagesController extends Controller
 
     public function postReaction(Message $message)
     {
+
         $profile = auth()->user()->profile->id;
         $type = request()->reaction;
 
@@ -134,38 +135,34 @@ class MessagesController extends Controller
             $query = $query->wherePivot('type', '=', $type)->detach(
                 $profile
             );
+            event(new Reaction($type, $message, false));
         } else {
             $query = $query->attach(
                 $profile,
                 ['type' => $type]
             );
-            event(new Reaction($type, $message));
+            if ($type != 'hide') {
+                event(new Reaction($type, $message, true));
+            }
         }
+
         return $query;
     }
 
-    public function getLikes(Message $message)
+    public function getReactions(Message $message)
     {
-        $likes = DB::table('users')
-            ->join('profiles', 'users.id', 'profiles.user_id')
-            ->join('message_profile', 'profiles.id', 'message_profile.profile_id')
-            ->where('message_profile.message_id', '=', $message->id)
-            ->where('message_profile.type', '=', 'like')
-            ->select('users.username', 'profiles.*')
-            ->get();
-        return response()->json($likes);
+        $reactions = $message->reactions()->pluck('message_profile.type');
+        return $reactions;
     }
-    public function getFav(Message $message)
+
+    public function userReactions(Message $message)
     {
-        $fav = DB::table('users')
-            ->join('profiles', 'users.id', 'profiles.user_id')
-            ->join('message_profile', 'profiles.id', 'message_profile.profile_id')
-            ->where('message_profile.message_id', '=', $message->id)
-            ->where('message_profile.type', '=', 'fav')
-            ->select('users.username', 'profiles.*')
-            ->get();
-        return response()->json($fav);
+        $reactions = auth()->user() ?
+            auth()->user()->profile->reacts()->where('message_id', $message->id)->pluck('message_profile.type') :
+            [];
+        return $reactions;
     }
+
 
     public function getMessages(Request $request, $filter = null)
     {
@@ -214,8 +211,7 @@ class MessagesController extends Controller
         // GET 
         $messages = $messages
             ->groupBy('messages.id');
-        $messages = $messages->get();
-
+        $messages = $messages->orderBy('messages.created_at', 'DESC')->paginate(5)->items();
         return json_encode($messages);
     }
 

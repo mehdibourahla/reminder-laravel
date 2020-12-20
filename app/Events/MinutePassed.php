@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Message;
+use App\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -11,7 +12,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class MinutePassed
+class MinutePassed implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -33,6 +34,15 @@ class MinutePassed
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        $all = User::get();
+        $channels = [];
+        foreach ($all as $user) {
+            array_push($channels, new Channel('channel-' . $user->id));
+        }
+        return $channels;
+    }
+    public function broadcastAs()
+    {
+        return 'notification-push';
     }
 }

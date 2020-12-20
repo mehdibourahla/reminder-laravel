@@ -92,7 +92,6 @@ function addTag(){
     let container = document.querySelector('.tag-container');
     let input = document.querySelector('#hashtags');
     if (input.value.includes(',') && input.value.length > 1) {
-        console.log("object")
           let tags = input.value.split(',');
           tags.forEach(tag => {
               if(tag.length >1){
@@ -104,7 +103,6 @@ function addTag(){
                   p.addEventListener('click', () => {
                       let index = Array.from(p.parentNode.children).indexOf(p);
                       hashtagArray.splice(index,1);
-                      console.log(hashtagArray);
                       container.removeChild(p);
                       });
   

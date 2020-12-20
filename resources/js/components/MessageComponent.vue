@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showMessage" class="card my-3 w-100">
+  <div v-if="showMessage" class="card my-3 w-100" :id="'message-' + msg.id">
     <div class="card-body">
       <div class="d-flex align-items-center justify-content-between">
         <div>
@@ -41,25 +41,34 @@
         <h6 class="card-subtitle mb-2 text-muted">{{ msg.created_at }}</h6>
       </div>
 
-      <div class="d-flex align-items-center">
+      <div v-if="userReactions !== null" class="d-flex align-items-center">
         <like-button
+          ref="likebtn"
           :message-id="msg.id"
-          :is-liked="isLiked"
-          @statusChanged="like"
+          @statusChanged="setReactions"
+          :user-reactions="userReactions"
         ></like-button>
         <favourite-button
+          ref="favbtn"
           :message-id="msg.id"
-          :is-favourite="isFavourite"
-          @statusChanged="fav"
+          @statusChanged="setReactions"
+          :user-reactions="userReactions"
         >
         </favourite-button>
         <hide-button
           :message-id="msg.id"
-          :is-hidden="isHidden"
-          @statusChanged="hide"
+          @statusChanged="setReactions"
+          :user-reactions="userReactions"
         >
         </hide-button>
       </div>
+      <span v-show="reactCount > 0" class="ml-2"
+        ><strong
+          >{{ reactCount }} reaction<span v-show="reactCount > 1"
+            >s</span
+          ></strong
+        ></span
+      >
       <div class="mt-2">
         <a
           v-for="tag in tags"
@@ -80,33 +89,104 @@ import axios from "axios";
 export default {
   props: ["message", "query"],
 
-  mounted: function () {},
+  created: function () {
+    this.getUserReactions();
+    this.getReactCount();
+    this.getTags();
+  },
+  mounted: function () {
+    document.addEventListener("scroll", () => {
+      this.updateScroll();
+    });
+  },
 
   data: function () {
     return {
       msg: this.message,
+      userReactions: null,
       filter: this.query ? this.query : "m",
-      isLiked: this.message.type ? this.message.type.includes("like") : false,
-      isFavourite: this.message.type
-        ? this.message.type.includes("fav")
-        : false,
-      isHidden: this.message.type ? this.message.type.includes("hide") : false,
       tags: null,
+      el: null,
+      scrollPosition: null,
+      pusher: new Pusher("881559dd5578864ceeb0", {
+        cluster: "eu",
+      }),
+      reactCount: 0,
+      listening: false,
       loading: true,
     };
   },
+  updated: function () {
+    if (this.showMessage) {
+      this.$nextTick(function () {
+        let domElm = document.querySelector("#message-" + this.msg.id);
+        this.el = {
+          position: this.offset(domElm),
+          height: domElm.clientHeight,
+        };
+      });
+    }
+  },
 
+  watch: {
+    scrollPosition: function () {
+      if (this.showMessage) {
+        if (
+          this.scrollPosition <= this.el.position - 700 ||
+          this.scrollPosition > this.el.position + this.el.height
+        ) {
+          this.unsubscribe();
+        } else {
+          this.subscribe();
+        }
+      }
+    },
+  },
   methods: {
-    like(value) {
-      this.isLiked = value;
+    updateScroll() {
+      this.scrollPosition = window.scrollY;
     },
-    fav(value) {
-      this.isFavourite = value;
+    offset(el) {
+      let rect = el.getBoundingClientRect();
+      let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      return rect.top + scrollTop;
     },
-    hide(value) {
-      this.isHidden = value;
+    setReactions(value) {
+      this.userReactions = value;
     },
-
+    subscribe() {
+      if (!this.listening) {
+        this.getReactCount();
+        let channel = this.pusher.subscribe("channel-message-" + this.msg.id);
+        channel.bind("notification-push", this.getReactCount, this);
+        channel.bind("notification", this.getReactCount, this);
+        this.listening = true;
+      }
+    },
+    unsubscribe() {
+      if (this.listening) {
+        this.pusher.unsubscribe("channel-message-" + this.msg.id);
+        this.listening = false;
+      }
+    },
+    async getUserReactions() {
+      try {
+        let res = await axios.get("/api/m/" + this.msg.id + "/userReactions");
+        this.userReactions = res.data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async getReactCount() {
+      try {
+        const res = await axios.get("/api/m/" + this.msg.id + "/reactions");
+        this.reactCount = res.data.filter((reaction) => {
+          return reaction === "fav" || reaction === "like";
+        }).length;
+      } catch (error) {
+        console.error(error);
+      }
+    },
     async getTags() {
       try {
         let res = await axios.get("/api/m/" + this.msg.id + "/tags");
@@ -115,13 +195,12 @@ export default {
         console.error(error);
       }
     },
-
     async deleteMessage(msg) {
       let res = await axios.delete("/m/" + msg.id);
       if (res.status !== 200) {
         console.error(res);
       } else {
-        this.isHidden = true;
+        this.userReactions = ["hide"];
         this.$emit("deleted", true);
       }
     },
@@ -133,7 +212,6 @@ export default {
     },
     loaded() {
       this.loading = false;
-      this.getTags();
     },
   },
 
@@ -142,18 +220,24 @@ export default {
       return this.$userId ? this.$userId === this.msg.user_id : false;
     },
     showMessage() {
-      console.log(this.filter);
-      if (this.filter.includes("likes")) {
-        return this.isLiked && !this.isHidden;
-      } else {
-        if (this.filter.includes("favourites")) {
-          return this.isFavourite && !this.isHidden;
+      if (this.userReactions !== null) {
+        if (this.filter.includes("likes")) {
+          return (
+            this.userReactions.includes("like") &&
+            !this.userReactions.includes("hide")
+          );
         } else {
-          if (this.filter.includes("m")) {
-            return !this.isHidden;
+          if (this.filter.includes("favourites")) {
+            return (
+              this.userReactions.includes("fav") &&
+              !this.userReactions.includes("hide")
+            );
           } else {
-            console.log(this.isHidden);
-            return this.isHidden;
+            if (this.filter.includes("m")) {
+              return !this.userReactions.includes("hide");
+            } else {
+              return this.userReactions.includes("hide");
+            }
           }
         }
       }
@@ -161,6 +245,9 @@ export default {
     show() {
       return this.loading;
     },
+  },
+  destroyed: function () {
+    this.pusher.disconnect();
   },
 };
 </script>

@@ -21,39 +21,42 @@ export default {
   props: ["profileId"],
   mounted() {
     this.getData();
+    document.addEventListener("scroll", (e) => {
+      if (
+        document.documentElement.scrollTop +
+          document.documentElement.clientHeight >=
+        document.documentElement.scrollHeight
+      ) {
+        this.page++;
+        this.getData();
+      }
+    });
   },
 
   data: function () {
     return {
-      messages: null,
+      messages: [],
       query: "/api/profile/m",
+      page: 1,
     };
   },
   methods: {
-    compare(a, b) {
-      if (a.created_at < b.created_at) {
-        return 1;
-      }
-      if (a.created_at > b.created_at) {
-        return -1;
-      }
-      return 0;
-    },
     filter(value) {
-      this.messages = null;
+      this.messages = [];
+      this.page = 1;
       this.query = "/api/profile/" + value;
-
       this.getData();
     },
     async getData() {
       try {
-        let res = await axios.get(this.query, {
+        let res = await axios.get(this.query + "?page=" + this.page, {
           params: {
             profile: this.profileId,
           },
         });
-        this.messages = res.data;
-        this.messages.sort(this.compare);
+        res.data.forEach((element) => {
+          this.messages.push(element);
+        });
       } catch (error) {
         console.error(error);
       }

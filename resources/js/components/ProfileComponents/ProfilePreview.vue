@@ -44,7 +44,7 @@ export default {
         const res = await axios.get(
           "/api/profile/" + this.profile.id + "/removeFollower"
         );
-        console.log(this.profile.id);
+
         this.status = !this.status;
         this.$root.$emit("updateFollows");
       } catch (errors) {

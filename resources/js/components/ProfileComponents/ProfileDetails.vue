@@ -1,18 +1,18 @@
 <template>
   <div>
     <div v-if="profileDetails !== null" class="row py-3">
-      <div class="col-3">
+      <div class="col-lg-3 col-sm-6">
         <loading-spinner v-show="show"></loading-spinner>
         <img
           v-show="!show"
           :src="profileDetails.picture"
           @load="loaded"
           class="img-thumbnail rounded-circle"
-          style="width: 200px; height: 200px"
+          style="max-width: 200px; max-height: 200px"
           alt=""
         />
       </div>
-      <div class="col-6">
+      <div class="col-lg-6 col-sm-12">
         <div class="d-flex align-items-center">
           <div class="h4 mr-4">{{ profileDetails.username }}</div>
           <follow-button :user-id="profileId"></follow-button>

@@ -17,37 +17,35 @@ export default {
   props: [""],
   mounted() {
     this.getData();
-    Echo.private("App.User." + this.$userId).notification((notification) => {
-      console.log("object");
-      console.log(notification.type);
+    document.addEventListener("scroll", (e) => {
+      if (
+        document.documentElement.scrollTop +
+          document.documentElement.clientHeight >=
+        document.documentElement.scrollHeight
+      ) {
+        this.page++;
+        this.getData();
+      }
     });
   },
 
   data: function () {
     return {
-      messages: null,
+      messages: [],
+      page: 1,
     };
   },
   methods: {
-    compare(a, b) {
-      if (a.created_at < b.created_at) {
-        return 1;
-      }
-      if (a.created_at > b.created_at) {
-        return -1;
-      }
-      return 0;
-    },
-
     async getData() {
       try {
-        let res = await axios.get("/api/m/followedMsgs", {
+        let res = await axios.get("/api/m/followedMsgs?page=" + this.page, {
           params: {
             user: this.$userId,
           },
         });
-        this.messages = res.data;
-        this.messages.sort(this.compare);
+        res.data.forEach((element) => {
+          this.messages.push(element);
+        });
       } catch (error) {
         console.error("You shall not pass ! ");
       }

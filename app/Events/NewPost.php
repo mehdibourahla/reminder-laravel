@@ -10,7 +10,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class NewPost
+class NewPost implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -32,6 +32,15 @@ class NewPost
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        $followers = auth()->user()->profile->followers;
+        $channels = [];
+        foreach ($followers as $follower) {
+            array_push($channels, new Channel('channel-' . $follower->id));
+        }
+        return $channels;
+    }
+    public function broadcastAs()
+    {
+        return 'notification-push';
     }
 }

@@ -1,43 +1,49 @@
 <template>
   <div>
-    <button
-      class="btn btn-secondary mr-3"
+    <i
       @click="hideMessage"
-      v-text="buttonText"
-    ></button>
+      v-bind:class="buttonStyle"
+      class="far fa-2x text-secondary mx-2"
+      style="cursor: pointer"
+    ></i>
   </div>
 </template>
 
 <script>
+var _ = require("lodash/array");
 export default {
-  props: ["messageId", "isHidden"],
-  mounted() {},
+  props: ["messageId", "userReactions"],
+  mounted() {
+    this.reactions = this.userReactions;
+  },
 
   data: function () {
-    let hiddenMsg = this.isHidden;
     return {
-      status: hiddenMsg,
+      loading: false,
+      reactions: [],
     };
   },
+
   methods: {
-    hideMessage() {
-      axios
-        .post("/api/m/" + this.messageId + "/hide")
-        .then((response) => {
-          this.status = !this.status;
-          this.$emit("statusChanged", this.status);
-        })
-        .catch((errors) => {
-          if (errors.response.status === 401) {
-            window.location = "/login";
-          }
-        });
+    async hideMessage() {
+      try {
+        this.loading = true;
+        this.reactions = _.xor(["hide"], this.reactions);
+        this.$emit("statusChanged", this.reactions);
+        await axios.post("/api/m/" + this.messageId + "/hide");
+        this.loading = false;
+      } catch (error) {
+        console.error(error);
+      }
     },
   },
 
   computed: {
-    buttonText() {
-      return this.status ? "Show" : "Hide";
+    buttonStyle: function () {
+      return {
+        "fa-eye-slash": !this.reactions.includes("hide"),
+        "fa-eye": this.reactions.includes("hide"),
+      };
     },
   },
 };

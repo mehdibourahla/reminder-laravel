@@ -10,20 +10,21 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class Reaction
+class Reaction implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $reaction, $message;
+    public $reaction, $message, $up;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($reaction, $message)
+    public function __construct($reaction, $message, $up)
     {
         $this->reaction = $reaction;
         $this->message = $message;
+        $this->up = $up;
     }
 
     /**
@@ -33,6 +34,17 @@ class Reaction
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        return [
+            new Channel('channel-' . $this->message->user_id),
+            new Channel('channel-message-' . $this->message->id)
+        ];
+    }
+    public function broadcastAs()
+    {
+        if ($this->up) {
+            return 'notification-push';
+        } else {
+            return 'notification';
+        }
     }
 }

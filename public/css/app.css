@@ -10937,3 +10937,9 @@ a.text-dark:focus {
   cursor: pointer;
 }
 
+.scrollable-menu {
+  height: auto;
+  max-height: 300px;
+  overflow-x: hidden;
+}
+
